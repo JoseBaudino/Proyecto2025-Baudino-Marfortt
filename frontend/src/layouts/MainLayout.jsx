@@ -21,9 +21,12 @@ const SECCIONES = [
  * Layout principal: cabecera con navegación, contenido de la ruta hija (Outlet) y pie de página.
  * Si no hay sesión iniciada redirige a la página de login.
  * @method MainLayout
+ * @param {Object} props - Propiedades del componente
+ * @param {string} props.tema - Tema actual: "claro" u "oscuro"
+ * @param {Function} props.alternarTema - Cambia entre tema claro y oscuro
  * @return {JSX.Element} Estructura común de las páginas protegidas
  */
-const MainLayout = () => {
+const MainLayout = ({ tema, alternarTema }) => {
   const navigate = useNavigate();
   const { session, logout } = useSession();
   const [mostrarModal, setMostrarModal] = useState(false);
@@ -75,6 +78,15 @@ const MainLayout = () => {
             🌾 AgroGestión <span className="accent">360</span>
           </span>
         </h1>
+        <button
+          type="button"
+          className="tema-toggle"
+          aria-label={tema === 'oscuro' ? 'Activar modo claro' : 'Activar modo oscuro'}
+          title={tema === 'oscuro' ? 'Modo claro' : 'Modo oscuro'}
+          onClick={alternarTema}
+        >
+          {tema === 'oscuro' ? '☀️' : '🌙'}
+        </button>
         {/* Botón hamburguesa: solo se ve en pantallas chicas (ver estilos) */}
         <button
           type="button"

@@ -5,16 +5,45 @@
    agregan los ajustes para tablet y escritorio.
    ========================================================== */
 
-// ---------- Variables ----------
+// ---------- Colores del tema (claro / oscuro) ----------
+// Se usan variables CSS (--nombre) porque, a diferencia de las de SCSS,
+// pueden cambiar mientras la página está abierta (al tocar el botón 🌙).
+:root {
+  --fondo: #f3f6f4;
+  --superficie: #fff;
+  --superficie-2: #f7faf8;
+  --texto: #1f2933;
+  --gris: #6b7280;
+  --borde: #e2e8e4;
+  --borde-fuerte: #cbd5d0;
+  --verde-suave: #e8f5e9;
+}
+
+// Modo oscuro: lo activa el atributo data-tema="oscuro" en <html> (ver hooks/useTema.js)
+[data-tema='oscuro'] {
+  --fondo: #121816;
+  --superficie: #1c2421;
+  --superficie-2: #24302b;
+  --texto: #e6ece9;
+  --gris: #9aa5a0;
+  --borde: #2f3b36;
+  --borde-fuerte: #42514a;
+  --verde-suave: #1f3a26;
+}
+
+// ---------- Variables SCSS ----------
+$fondo: var(--fondo);
+$superficie: var(--superficie);
+$superficie-2: var(--superficie-2);
+$texto: var(--texto);
+$gris: var(--gris);
+$borde: var(--borde);
+$borde-fuerte: var(--borde-fuerte);
+$verde-suave: var(--verde-suave);
 $verde: #2e7d32;
 $verde-claro: #77e38e;
-$verde-suave: #e8f5e9;
 $verde-oscuro: #1b5e20;
 $oscuro: #0f1720;
-$texto: #1f2933;
-$gris: #6b7280;
-$borde: #e2e8e4;
-$fondo: #f3f6f4;
 $error: #d32f2f;
 $error-oscuro: #b71c1c;
 $fuente: 'Poppins', sans-serif;
@@ -24,7 +53,7 @@ $alto-header: 60px;
 
 // Puntos de corte (ancho de pantalla)
 $tablet: 640px;
-$escritorio: 960px;
+$escritorio: 1100px; // desde acá el menú entra completo en una sola línea
 
 // ---------- Base (selectores por etiqueta) ----------
 html {
@@ -61,12 +90,12 @@ select {
   width: 100%;
   margin: 4px 0;
   padding: 10px 12px;
-  border: 1px solid #cbd5d0;
+  border: 1px solid $borde-fuerte;
   border-radius: 8px;
   box-sizing: border-box;
   font-family: $fuente;
   font-size: 1rem; // 16px evita que el celular haga zoom al tocar el campo
-  background: #fff;
+  background: $superficie;
 
   &:focus {
     outline: 2px solid $verde-claro;
@@ -136,6 +165,22 @@ button {
   }
 }
 
+// Botón de modo claro / oscuro
+.tema-toggle {
+  margin-left: auto; // lo empuja a la derecha, al lado de la hamburguesa
+  margin-right: 8px;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  background: none;
+  font-size: 1.1rem;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
 // En celulares el menú está oculto y se despliega debajo del logo
 .main-nav {
   display: none;
@@ -185,7 +230,7 @@ button {
   min-height: 100vh;
   padding: 24px 16px;
   box-sizing: border-box;
-  background: url('../imagenes/fondo-campo-soja.jpeg') no-repeat center / cover;
+  background: url('../imagenes/fondo-campo-soja.jpg') no-repeat center / cover;
   text-align: center;
 }
 
@@ -209,13 +254,39 @@ button {
   }
 }
 
+// Panel de resumen dentro de la portada
+.resumen {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.resumen-item {
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.12);
+
+  span {
+    display: block;
+    font-size: 0.8rem;
+    opacity: 0.85;
+  }
+
+  strong {
+    font-size: 1.2rem;
+    color: $verde-claro;
+  }
+}
+
 // ---------- Secciones y tarjetas ----------
 .section {
   max-width: 1000px;
   margin: 16px 12px;
   padding: 20px 16px;
   border-radius: $radio;
-  background: #fff;
+  background: $superficie;
   box-shadow: $sombra;
   // Deja lugar para el header fijo al saltar a la sección desde el menú
   scroll-margin-top: $alto-header + 10px;
@@ -233,7 +304,7 @@ button {
   padding: 16px;
   border: 1px solid $borde;
   border-radius: $radio;
-  background: #fff;
+  background: $superficie;
 }
 
 .muted {
@@ -289,7 +360,7 @@ button {
 .auth-form {
   padding: 20px;
   border-radius: $radio;
-  background: rgba(255, 255, 255, 0.97);
+  background: $superficie;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
   color: $texto;
 
@@ -335,15 +406,15 @@ button {
 .btn {
   display: inline-block;
   padding: 10px 16px;
-  border: 1px solid #cbd5d0;
+  border: 1px solid $borde-fuerte;
   border-radius: 999px;
-  background: #fff;
+  background: $superficie;
   color: $texto;
   font-weight: 600;
   transition: background-color 0.2s, transform 0.1s;
 
   &:hover {
-    background: #f1f5f2;
+    background: $superficie-2;
   }
 
   &:active {
@@ -372,7 +443,7 @@ button {
 
   &.danger {
     border-color: $error;
-    background: #fff;
+    background: $superficie;
     color: $error;
 
     &:hover {
@@ -380,6 +451,14 @@ button {
       color: #fff;
     }
   }
+}
+
+// Buscador y filtro de la lista de maquinaria
+.filtros {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 0 12px;
+  margin-bottom: 8px;
 }
 
 // ---------- Listas (maquinaria y ganadería) ----------
@@ -399,7 +478,7 @@ button {
   border: 1px solid $borde;
   border-left: 4px solid $verde-claro;
   border-radius: $radio;
-  background: #fafcfb;
+  background: $superficie-2;
 
   h3 {
     margin: 0 0 4px;
@@ -511,7 +590,7 @@ button {
   overflow: hidden;
   border: 1px solid $borde;
   border-radius: $radio;
-  background: #fff;
+  background: $superficie;
   color: $texto;
   text-decoration: none;
   transition: transform 0.15s, box-shadow 0.15s;
@@ -568,14 +647,14 @@ button {
   max-height: 90vh;
   overflow-y: auto;
   border-radius: $radio;
-  background: #fff;
+  background: $superficie;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   animation: slideIn 0.3s ease;
 }
 
 .modal-header {
   padding: 18px 20px 12px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid $borde;
 
   h3 {
     margin: 0;
@@ -605,7 +684,7 @@ button {
   flex-direction: column-reverse; // en celular: botones apilados
   gap: 8px;
   padding: 12px 20px 18px;
-  border-top: 1px solid #eee;
+  border-top: 1px solid $borde;
 
   .btn {
     width: 100%;
@@ -677,7 +756,7 @@ button {
 }
 
 // ==========================================================
-// Escritorio (pantallas de 960px o más): menú horizontal
+// Escritorio (pantallas de 1100px o más): menú horizontal
 // ==========================================================
 @media (min-width: $escritorio) {
   .site-header {
@@ -689,7 +768,13 @@ button {
     display: none;
   }
 
+  .tema-toggle {
+    order: 3; // en escritorio va al final de la barra
+    margin: 0 0 0 12px;
+  }
+
   .main-nav {
+    margin-left: auto;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -699,6 +784,7 @@ button {
     a {
       padding: 8px 10px;
       border-bottom: none;
+      white-space: nowrap;
     }
   }
 
@@ -715,5 +801,30 @@ button {
 
   .hero {
     background-attachment: fixed; // efecto parallax solo en escritorio
+  }
+}
+
+// ==========================================================
+// Ajustes de contraste para el modo oscuro
+// (el verde oscuro se lee mal sobre fondo oscuro)
+// ==========================================================
+[data-tema='oscuro'] {
+  .precio,
+  .badge-ok,
+  .resultado.ganancia,
+  .auth-message.success,
+  .auth-switch a,
+  .confirmation-details strong {
+    color: $verde-claro;
+  }
+
+  .resultado.perdida,
+  .auth-message.error {
+    background: #3a1f1f;
+    color: #ff8a80;
+  }
+
+  .preview-card img {
+    background: #e6ece9; // los logos tienen fondo blanco
   }
 }

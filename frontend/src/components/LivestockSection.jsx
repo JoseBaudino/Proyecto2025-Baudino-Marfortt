@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Input from '@/components/Input';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
 import ConfirmModal from '@/components/ConfirmModal';
 import useFormulario from '@/hooks/useFormulario';
-import { CLAVES, leerLocal, guardarLocal } from '@/utils/storage';
 import { validarNumero, validarTexto, aNumero } from '@/utils/validaciones';
 
 /**
@@ -26,21 +25,20 @@ const VALIDADORES = {
 };
 
 /**
- * Sección "Registro de Ganadería": alta de razas con contador +1/-1 persistido en localStorage.
+ * Sección "Registro de Ganadería": alta de razas con contador +1/-1.
  * @method LivestockSection
+ * @param {Object} props - Propiedades del componente
+ * @param {Array<Object>} props.razas - Lista de razas (guardada en localStorage por IndexPage)
+ * @param {Function} props.setRazas - Función para actualizar la lista
  * @return {JSX.Element} Sección de ganadería
  */
-const LivestockSection = () => {
+const LivestockSection = ({ razas, setRazas }) => {
   const form = useFormulario({ tipo: '', raza: '', cantidad: '0' }, VALIDADORES);
-  const [razas, setRazas] = useState(() => leerLocal(CLAVES.GANADERIA, []));
   const [aEliminar, setAEliminar] = useState(null);
-
-  useEffect(() => {
-    guardarLocal(CLAVES.GANADERIA, razas);
-  }, [razas]);
 
   /**
    * Valida el formulario y agrega la raza al inventario.
+   * Si ya existe la misma raza para ese animal, avisa y no la agrega.
    * @method agregarRaza
    * @param {React.FormEvent} e - Evento submit del formulario
    * @return {void}
@@ -53,6 +51,12 @@ const LivestockSection = () => {
       return;
     }
     const { tipo, raza, cantidad } = form.valores;
+    const yaExiste = razas.some((r) => r.type === tipo && r.name.toLowerCase() === raza.trim().toLowerCase());
+    if (yaExiste) {
+      alert(`La raza "${raza.trim()}" ya está registrada para ${tipo}. Use los botones +1 / -1 para cambiar la cantidad.`);
+      form.setValor('raza', '');
+      return;
+    }
     setRazas((prev) => [...prev, { id: `${Date.now()}-${Math.random()}`, type: tipo, name: raza.trim(), count: aNumero(cantidad) }]);
     form.reiniciar();
   };

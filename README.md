@@ -27,7 +27,11 @@
 - **Calculadora de Costos**: Costo por hectárea, costo total, ingreso esperado y utilidad
 - **Clima**: Consulta en tiempo real a la API de Open-Meteo eligiendo un punto en el mapa
 - **Bolsa de Cereales**: Precios de referencia generados desde un JSON local, con enlace a cada bolsa
-- **Almacenamiento Local**: Persistencia de sesión, maquinaria y ganadería entre visitas
+- **Almacenamiento Local**: Persistencia de sesión, maquinaria, ganadería y tema elegido entre visitas
+- **Panel de resumen**: Máquinas activas, total de animales y valor de la maquinaria en la portada
+- **Buscador de maquinaria**: Filtro en tiempo real por nombre/tipo y por estado
+- **Modo oscuro**: Botón 🌙 en el encabezado; la preferencia queda guardada
+- **Diseño responsive**: Menú hamburguesa en celulares y grillas que se adaptan al ancho
 
 ## Autores
 - **Marfortt, Renzo**
@@ -94,7 +98,7 @@ Proyecto2025-Baudino-Marfortt/
         ├── components/   # Componentes reutilizables (Button, Card, Input, ConfirmModal, secciones)
         ├── contexts/     # Contexto y proveedor de sesión
         ├── data/         # JSON local (cotizaciones)
-        ├── hooks/        # Hook useFormulario (validación de formularios)
+        ├── hooks/        # Hooks propios: useFormulario, useLocalStorage y useTema
         ├── imagenes/     # Imágenes del sitio
         ├── layouts/      # MainLayout (header + Outlet + footer)
         ├── pages/        # HomePage (login/registro) e IndexPage (principal)
@@ -107,6 +111,7 @@ Proyecto2025-Baudino-Marfortt/
 
 - **Sitio Web**: [AgroGestión 360 - GitHub Pages](https://josebaudino.github.io/Proyecto2025-Baudino-Marfortt/)
 - **Repositorio**: [GitHub Repository](https://github.com/JoseBaudino/Proyecto2025-Baudino-Marfortt)
+- **Imagen de fondo**: ["Expansive Green Soybean Field Under Cloudy Sky"](https://www.pexels.com/photo/expansive-green-soybean-field-under-cloudy-sky-38740391/) de Clinton Weaver en Pexels (licencia gratuita de Pexels)
 
 ## Instalación y Uso
 
@@ -131,16 +136,16 @@ Proyecto2025-Baudino-Marfortt/
 4. Abrir **http://localhost:5173/** en el navegador.
 
 ### Uso de la Aplicación
-1. **Registro / Login**: Creá una cuenta y luego iniciá sesión
+1. **Registro / Login**: Creá una cuenta y luego iniciá sesión. *Al ser una demo sin servidor, se guarda un solo usuario en el navegador: si se registra otra cuenta, reemplaza a la anterior.*
 2. **Maquinaria**: Completá el formulario y, opcionalmente, agregá una foto
-3. **Ganadería**: Seleccioná tipo de animal, raza y cantidad inicial
+3. **Ganadería**: Seleccioná tipo de animal, raza y cantidad inicial (no se puede repetir la misma raza para un mismo animal)
 4. **Calculadora**: Ingresá hectáreas, dosis y precio de semilla (obligatorios) y el resto de los costos
 5. **Clima**: Hacé clic en cualquier punto del mapa
 6. **Bolsa**: Hacé clic en una tarjeta para ver los precios actualizados
 
 ## Tests
 
-Los tests están en `frontend/src/__tests__/` (17 tests: componentes genéricos, validaciones, cálculos, calculadora, ganadería, navegación y sesión).
+Los tests están en `frontend/src/__tests__/` (21 tests: componentes genéricos, validaciones, cálculos, calculadora, ganadería, buscador de maquinaria, panel de resumen, modo oscuro, navegación y sesión).
 
 ```bash
 cd frontend

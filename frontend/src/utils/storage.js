@@ -1,13 +1,14 @@
 /**
  * Claves usadas en localStorage por la aplicación.
  * @constant
- * @type {{USUARIO: string, SESION: string, MAQUINARIA: string, GANADERIA: string}}
+ * @type {{USUARIO: string, SESION: string, MAQUINARIA: string, GANADERIA: string, TEMA: string}}
  */
 export const CLAVES = {
   USUARIO: 'agroGestion_user',
   SESION: 'agroGestion_session',
   MAQUINARIA: 'agroGestion_machinery',
   GANADERIA: 'agroGestion_breeds',
+  TEMA: 'agroGestion_tema',
 };
 
 /**

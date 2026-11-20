@@ -3,6 +3,35 @@ import userEvent from '@testing-library/user-event';
 import App from '@/App';
 import CostCalculator from '@/components/CostCalculator';
 import LivestockSection from '@/components/LivestockSection';
+import MachinerySection from '@/components/MachinerySection';
+import SummaryPanel from '@/components/SummaryPanel';
+import useLocalStorage from '@/hooks/useLocalStorage';
+import { CLAVES } from '@/utils/storage';
+
+/**
+ * Renderiza la sección de ganadería con su lista guardada en localStorage (como en IndexPage).
+ * @method Ganaderia
+ * @return {JSX.Element} Sección de ganadería
+ */
+const Ganaderia = () => {
+  const [razas, setRazas] = useLocalStorage(CLAVES.GANADERIA, []);
+  return <LivestockSection razas={razas} setRazas={setRazas} />;
+};
+
+/**
+ * Renderiza la sección de maquinaria con su lista guardada en localStorage (como en IndexPage).
+ * @method Maquinaria
+ * @return {JSX.Element} Sección de maquinaria
+ */
+const Maquinaria = () => {
+  const [maquinas, setMaquinas] = useLocalStorage(CLAVES.MAQUINARIA, []);
+  return <MachinerySection maquinas={maquinas} setMaquinas={setMaquinas} />;
+};
+
+const MAQUINAS_DEMO = [
+  { id: '1', name: 'John Deere 6145J', type: 'Tractor', condition: 'Activo', price: 85000, notes: '', photo: null },
+  { id: '2', name: 'Pla MV 3000', type: 'Pulverizadora', condition: 'Inactivo', price: 42000, notes: '', photo: null },
+];
 
 beforeEach(() => {
   localStorage.clear();
@@ -43,19 +72,77 @@ describe('Calculadora de costos', () => {
 });
 
 describe('Ganadería', () => {
-  test('agrega una raza, suma con +1 y la guarda en localStorage', async () => {
-    render(<LivestockSection />);
-    await userEvent.selectOptions(screen.getByLabelText('Tipo de animal'), 'Vaca');
-    await userEvent.type(screen.getByLabelText('Raza'), 'Angus');
+  /**
+   * Completa y envía el formulario de ganadería.
+   * @method agregarRaza
+   * @param {string} tipo - Tipo de animal
+   * @param {string} raza - Nombre de la raza
+   * @param {string} cantidad - Cantidad inicial
+   * @return {Promise<void>}
+   */
+  const agregarRaza = async (tipo, raza, cantidad) => {
+    await userEvent.selectOptions(screen.getByLabelText('Tipo de animal'), tipo);
+    await userEvent.type(screen.getByLabelText('Raza'), raza);
     await userEvent.clear(screen.getByLabelText('Cantidad inicial'));
-    await userEvent.type(screen.getByLabelText('Cantidad inicial'), '5');
+    await userEvent.type(screen.getByLabelText('Cantidad inicial'), cantidad);
     await userEvent.click(screen.getByRole('button', { name: 'Agregar' }));
+  };
+
+  test('agrega una raza, suma con +1 y la guarda en localStorage', async () => {
+    render(<Ganaderia />);
+    await agregarRaza('Vaca', 'Angus', '5');
 
     const [item] = within(screen.getByRole('list')).getAllByRole('listitem');
     expect(item).toHaveTextContent('Angus: 5 animales');
     await userEvent.click(within(item).getByRole('button', { name: 'Sumar un animal a Angus' }));
     expect(item).toHaveTextContent('Angus: 6 animales');
     expect(JSON.parse(localStorage.getItem('agroGestion_breeds'))[0].count).toBe(6);
+  });
+
+  test('no permite cargar dos veces la misma raza para el mismo animal', async () => {
+    render(<Ganaderia />);
+    await agregarRaza('Vaca', 'Angus', '5');
+    await agregarRaza('Vaca', 'angus', '3');
+
+    expect(window.alert).toHaveBeenCalledWith(expect.stringContaining('ya está registrada'));
+    expect(within(screen.getByRole('list')).getAllByRole('listitem')).toHaveLength(1);
+  });
+});
+
+describe('Maquinaria', () => {
+  test('el buscador y el filtro por estado filtran la lista en tiempo real', async () => {
+    localStorage.setItem(CLAVES.MAQUINARIA, JSON.stringify(MAQUINAS_DEMO));
+    render(<Maquinaria />);
+    expect(screen.getAllByRole('listitem')).toHaveLength(2);
+
+    await userEvent.type(screen.getByLabelText('Buscar'), 'pulv');
+    expect(screen.getAllByRole('listitem')).toHaveLength(1);
+    expect(screen.getByRole('heading', { name: 'Pla MV 3000' })).toBeInTheDocument();
+
+    await userEvent.selectOptions(screen.getByLabelText('Estado', { selector: '#m-filtro-estado' }), 'Activo');
+    expect(screen.queryAllByRole('listitem')).toHaveLength(0);
+    expect(screen.getByText('Ninguna máquina coincide con la búsqueda.')).toBeInTheDocument();
+  });
+});
+
+describe('Panel de resumen', () => {
+  test('calcula máquinas activas, total de animales y valor de la maquinaria', () => {
+    const razas = [{ type: 'Vaca', name: 'Angus', count: 120 }, { type: 'Toro', name: 'Hereford', count: 4 }];
+    render(<SummaryPanel maquinas={MAQUINAS_DEMO} razas={razas} />);
+    expect(screen.getByText('Máquinas activas').nextSibling).toHaveTextContent('1 / 2');
+    expect(screen.getByText('Animales').nextSibling).toHaveTextContent('124');
+    expect(screen.getByText('Valor de la maquinaria').nextSibling).toHaveTextContent('USD 127.000,00');
+  });
+});
+
+describe('Modo oscuro', () => {
+  test('el botón cambia el tema y lo guarda en localStorage', async () => {
+    localStorage.setItem(CLAVES.SESION, JSON.stringify({ email: 'juan@correo.com' }));
+    render(<App />);
+    await userEvent.click(screen.getByRole('button', { name: 'Activar modo oscuro' }));
+    expect(document.documentElement.dataset.tema).toBe('oscuro');
+    expect(JSON.parse(localStorage.getItem(CLAVES.TEMA))).toBe('oscuro');
+    expect(screen.getByRole('button', { name: 'Activar modo claro' })).toBeInTheDocument();
   });
 });
 

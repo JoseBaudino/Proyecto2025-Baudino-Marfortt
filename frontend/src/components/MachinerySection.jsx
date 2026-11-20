@@ -1,10 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import Input from '@/components/Input';
 import Button from '@/components/Button';
 import Card from '@/components/Card';
 import ConfirmModal from '@/components/ConfirmModal';
 import useFormulario from '@/hooks/useFormulario';
-import { CLAVES, leerLocal, guardarLocal } from '@/utils/storage';
 import { validarNumero, validarTexto, aNumero } from '@/utils/validaciones';
 import { formatearUSD } from '@/utils/calculos';
 
@@ -35,20 +34,29 @@ const VALIDADORES = {
 };
 
 /**
- * Sección "Organizador de Maquinaria": formulario de alta con foto opcional y listado persistido en localStorage.
+ * Sección "Organizador de Maquinaria": formulario de alta con foto opcional,
+ * buscador con filtro por estado y listado de máquinas.
  * @method MachinerySection
+ * @param {Object} props - Propiedades del componente
+ * @param {Array<Object>} props.maquinas - Lista de máquinas (guardada en localStorage por IndexPage)
+ * @param {Function} props.setMaquinas - Función para actualizar la lista
  * @return {JSX.Element} Sección de maquinaria
  */
-const MachinerySection = () => {
+const MachinerySection = ({ maquinas, setMaquinas }) => {
   const form = useFormulario({ nombre: '', tipo: '', estado: '', precio: '', notas: '' }, VALIDADORES);
   const [foto, setFoto] = useState(null);
-  const [maquinas, setMaquinas] = useState(() => leerLocal(CLAVES.MAQUINARIA, []));
   const [aEliminar, setAEliminar] = useState(null);
+  const [busqueda, setBusqueda] = useState('');
+  const [filtroEstado, setFiltroEstado] = useState('');
   const inputFoto = useRef(null);
 
-  useEffect(() => {
-    guardarLocal(CLAVES.MAQUINARIA, maquinas);
-  }, [maquinas]);
+  // Lista filtrada en tiempo real: por nombre/tipo (texto) y por estado (select)
+  const maquinasFiltradas = maquinas.filter((m) => {
+    const texto = busqueda.trim().toLowerCase();
+    const coincideTexto = m.name.toLowerCase().includes(texto) || m.type.toLowerCase().includes(texto);
+    const coincideEstado = filtroEstado === '' || m.condition === filtroEstado;
+    return coincideTexto && coincideEstado;
+  });
 
   /**
    * Lee la imagen elegida y la guarda como data URL para mostrarla y persistirla.
@@ -123,11 +131,19 @@ const MachinerySection = () => {
         </form>
       </Card>
 
-      {maquinas.length === 0 ? (
-        <p className="muted">No hay maquinaria cargada.</p>
-      ) : (
+      {maquinas.length > 0 && (
+        <div className="filtros">
+          <Input label="Buscar" id="m-buscar" type="search" placeholder="Nombre o tipo de máquina" maxLength={40} size={30} value={busqueda} onChange={(e) => setBusqueda(e.target.value)} />
+          <Input label="Estado" id="m-filtro-estado" options={ESTADOS} placeholderOption="Todos" value={filtroEstado} onChange={(e) => setFiltroEstado(e.target.value)} />
+        </div>
+      )}
+
+      {maquinas.length === 0 && <p className="muted">No hay maquinaria cargada.</p>}
+      {maquinas.length > 0 && maquinasFiltradas.length === 0 && <p className="muted">Ninguna máquina coincide con la búsqueda.</p>}
+
+      {maquinasFiltradas.length > 0 && (
         <ul id="machinery-list" className="grid">
-          {maquinas.map((m, idx) => (
+          {maquinasFiltradas.map((m, idx) => (
             <li key={m.id ?? idx} className="item machinery-item">
               {m.photo && <img src={m.photo} alt={`Foto de ${m.name}`} className="machinery-image" />}
               <div className="machinery-info">
