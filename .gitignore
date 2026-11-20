@@ -1,11 +1,14 @@
 # Node
 node_modules/
-npm-debug.log
-package-lock.json
+npm-debug.log*
 
 # Sistema
 .DS_Store
 Thumbs.db
 
-# Editor
+# Editores
 .vscode/
+.idea/
+
+# Configuración local de Claude
+.claude/

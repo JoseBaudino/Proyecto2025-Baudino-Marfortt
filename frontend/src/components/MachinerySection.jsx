@@ -1,0 +1,161 @@
+import { useEffect, useRef, useState } from 'react';
+import Input from '@/components/Input';
+import Button from '@/components/Button';
+import Card from '@/components/Card';
+import ConfirmModal from '@/components/ConfirmModal';
+import useFormulario from '@/hooks/useFormulario';
+import { CLAVES, leerLocal, guardarLocal } from '@/utils/storage';
+import { validarNumero, validarTexto, aNumero } from '@/utils/validaciones';
+import { formatearUSD } from '@/utils/calculos';
+
+/**
+ * Tipos de maquinaria disponibles en el formulario.
+ * @constant
+ * @type {Array<string>}
+ */
+const TIPOS = ['Tractor', 'Arado', 'Sembradora', 'Pulverizadora', 'Cosechadora', 'Mixer', 'Cabezal'];
+
+/**
+ * Estados posibles de una máquina.
+ * @constant
+ * @type {Array<string>}
+ */
+const ESTADOS = ['Activo', 'Inactivo'];
+
+/**
+ * Validadores del formulario de maquinaria.
+ * @constant
+ * @type {Object<string, Function>}
+ */
+const VALIDADORES = {
+  nombre: (valor) => validarTexto(valor, 'El nombre'),
+  tipo: (valor) => (valor ? '' : 'Seleccione un tipo'),
+  estado: (valor) => (valor ? '' : 'Seleccione un estado'),
+  precio: (valor) => validarNumero(valor, { requerido: true, max: 100000000 }),
+};
+
+/**
+ * Sección "Organizador de Maquinaria": formulario de alta con foto opcional y listado persistido en localStorage.
+ * @method MachinerySection
+ * @return {JSX.Element} Sección de maquinaria
+ */
+const MachinerySection = () => {
+  const form = useFormulario({ nombre: '', tipo: '', estado: '', precio: '', notas: '' }, VALIDADORES);
+  const [foto, setFoto] = useState(null);
+  const [maquinas, setMaquinas] = useState(() => leerLocal(CLAVES.MAQUINARIA, []));
+  const [aEliminar, setAEliminar] = useState(null);
+  const inputFoto = useRef(null);
+
+  useEffect(() => {
+    guardarLocal(CLAVES.MAQUINARIA, maquinas);
+  }, [maquinas]);
+
+  /**
+   * Lee la imagen elegida y la guarda como data URL para mostrarla y persistirla.
+   * @method cambiarFoto
+   * @param {React.ChangeEvent<HTMLInputElement>} e - Evento de cambio del input file
+   * @return {void}
+   */
+  const cambiarFoto = (e) => {
+    const archivo = e.target.files?.[0];
+    if (!archivo) {
+      setFoto(null);
+      return;
+    }
+    if (!archivo.type.startsWith('image/')) {
+      alert('El archivo seleccionado no es una imagen.');
+      e.target.value = '';
+      return;
+    }
+    const lector = new FileReader();
+    lector.onload = (ev) => setFoto(ev.target.result);
+    lector.readAsDataURL(archivo);
+  };
+
+  /**
+   * Valida el formulario y agrega la máquina a la lista.
+   * @method agregarMaquina
+   * @param {React.FormEvent} e - Evento submit del formulario
+   * @return {void}
+   */
+  const agregarMaquina = (e) => {
+    e.preventDefault();
+    const { valido, mensajes } = form.validarTodo();
+    if (!valido) {
+      alert(`Revise los datos de la maquinaria:\n- ${mensajes.join('\n- ')}`);
+      return;
+    }
+    const { nombre, tipo, estado, precio, notas } = form.valores;
+    const nueva = { id: `${Date.now()}-${Math.random()}`, name: nombre.trim(), type: tipo, condition: estado, price: aNumero(precio), notes: notas.trim(), photo: foto };
+    setMaquinas((prev) => [...prev, nueva]);
+    form.reiniciar();
+    setFoto(null);
+    if (inputFoto.current) inputFoto.current.value = '';
+  };
+
+  /**
+   * Elimina la máquina seleccionada y cierra el modal.
+   * @method confirmarEliminar
+   * @return {void}
+   */
+  const confirmarEliminar = () => {
+    setMaquinas((prev) => prev.filter((m) => m !== aEliminar));
+    setAEliminar(null);
+  };
+
+  return (
+    <section id="maquinaria" className="section">
+      <h2>Organizador de Maquinaria</h2>
+      <Card>
+        <form id="machinery-form" onSubmit={agregarMaquina} noValidate>
+          <Input label="Nombre" id="m-name" name="nombre" placeholder="Ej: John Deere 6145J" maxLength={40} size={40} value={form.valores.nombre} onChange={form.cambiar} error={form.errores.nombre} />
+          <Input label="Tipo" id="m-type" name="tipo" options={TIPOS} placeholderOption="Seleccionar tipo" value={form.valores.tipo} onChange={form.cambiar} error={form.errores.tipo} />
+          <Input label="Estado" id="m-condition" name="estado" options={ESTADOS} placeholderOption="Seleccionar estado" value={form.valores.estado} onChange={form.cambiar} error={form.errores.estado} />
+          <Input label="Precio (USD)" id="m-price" name="precio" inputMode="decimal" placeholder="Ej: 85000" maxLength={12} size={12} value={form.valores.precio} onChange={form.cambiar} error={form.errores.precio} />
+          <Input label="Notas" id="m-notes" name="notas" placeholder="Observaciones (opcional)" maxLength={100} size={40} value={form.valores.notas} onChange={form.cambiar} />
+          <label htmlFor="m-photo" className="file-label">Foto (opcional)</label>
+          <input id="m-photo" type="file" accept="image/*" ref={inputFoto} onChange={cambiarFoto} />
+          <Button type="submit" className="primary">Agregar</Button>
+        </form>
+      </Card>
+
+      {maquinas.length === 0 ? (
+        <p className="muted">No hay maquinaria cargada.</p>
+      ) : (
+        <ul id="machinery-list" className="grid">
+          {maquinas.map((m, idx) => (
+            <li key={m.id ?? idx} className="item machinery-item">
+              {m.photo && (
+                <div className="machinery-photo">
+                  <img src={m.photo} alt={`Foto de ${m.name}`} className="machinery-image" />
+                </div>
+              )}
+              <div className="machinery-info">
+                <strong>{m.name}</strong> ({m.type}) - {m.condition} - {formatearUSD(m.price)}
+                {m.notes && <p className="muted">{m.notes}</p>}
+                <Button onClick={() => setAEliminar(m)}>Eliminar</Button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <ConfirmModal
+        show={Boolean(aEliminar)}
+        title="Confirmar eliminación"
+        message="¿Estás seguro de que querés eliminar esta maquinaria?"
+        details={aEliminar && (
+          <>
+            <strong>{aEliminar.name}</strong>
+            Tipo: {aEliminar.type} · Estado: {aEliminar.condition} · Precio: {formatearUSD(aEliminar.price)}
+          </>
+        )}
+        confirmText="Eliminar"
+        onConfirm={confirmarEliminar}
+        onCancel={() => setAEliminar(null)}
+      />
+    </section>
+  );
+};
+
+export default MachinerySection;

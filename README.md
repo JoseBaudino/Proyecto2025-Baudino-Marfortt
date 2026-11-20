@@ -7,20 +7,27 @@
 - [Autores](#autores)
 - [Tecnologías Utilizadas](#tecnologías-utilizadas)
 - [Contenido de la Página](#contenido-de-la-página)
+- [Estructura del Proyecto](#estructura-del-proyecto)
 - [Enlaces](#enlaces)
 - [Instalación y Uso](#instalación-y-uso)
-- [Requisitos del Parcial](#requisitos-del-primer-parcial)
+- [Tests](#tests)
+- [Publicación en GitHub Pages](#publicación-en-github-pages)
+- [Requisitos del Primer Parcial](#requisitos-del-primer-parcial)
+- [Requisitos del Segundo Parcial](#requisitos-del-segundo-parcial)
+- [Requisitos del Final](#requisitos-del-final)
 
 ## Información del Proyecto
 
-**AgroGestión 360** es una aplicación web diseñada para la **gestión integral de actividades agropecuarias**. La plataforma permite a los usuarios administrar eficientemente su maquinaria agrícola, registrar su ganadería, calcular costos de siembra, consultar información meteorológica y acceder a bolsas de valores agrícolas.
+**AgroGestión 360** es una aplicación web diseñada para la **gestión integral de actividades agropecuarias**. La plataforma permite a los usuarios administrar su maquinaria agrícola, registrar su ganadería, calcular costos de siembra, consultar el clima de cualquier punto del mapa y acceder a las bolsas de cereales.
 
-## Características Principales
-- **Gestión de Maquinaria**: Registro completo con fotos, precios y estados
-- **Control de Ganadería**: Inventario de animales por raza y tipo
-- **Calculadora de Costos**: Estimación de costos y utilidades de siembra
-- **Bolsa de Valores**: Enlaces directos a cotizaciones agrícolas
-- **Almacenamiento Local**: Persistencia de datos entre sesiones
+### Características Principales
+- **Inicio de sesión y registro**: Acceso con email y contraseña (guardados en localStorage)
+- **Gestión de Maquinaria**: Registro con foto, precio y estado
+- **Control de Ganadería**: Inventario de animales por tipo y raza con contadores +1 / -1
+- **Calculadora de Costos**: Costo por hectárea, costo total, ingreso esperado y utilidad
+- **Clima**: Consulta en tiempo real a la API de Open-Meteo eligiendo un punto en el mapa
+- **Bolsa de Cereales**: Precios de referencia generados desde un JSON local, con enlace a cada bolsa
+- **Almacenamiento Local**: Persistencia de sesión, maquinaria y ganadería entre visitas
 
 ## Autores
 - **Marfortt, Renzo**
@@ -28,46 +35,73 @@
 
 ## Tecnologías Utilizadas
 
-| Categoría                | Tecnología  
-|--------------------------|--------------
-| **Frontend**             | HTML5
-| **Estilos**              | CSS3
-| **JavaScript**           | Vanilla JS
-| **Almacenamiento**       | localStorage
-| **Control de Versiones** | Git & GitHub
-| **Deployment**           | GitHub Pages 
+| Categoría                | Tecnología                                   |
+|--------------------------|----------------------------------------------|
+| **Framework**            | React 19                                     |
+| **Herramienta de build** | Vite 7                                       |
+| **Enrutamiento**         | react-router-dom 6 (HashRouter + Outlet)     |
+| **Estilos**              | SCSS (Sass) + Google Fonts (Poppins)         |
+| **Mapas**                | Leaflet + OpenStreetMap                      |
+| **API externa**          | Open-Meteo (fetch)                           |
+| **Almacenamiento**       | localStorage                                 |
+| **Tests**                | Jest + React Testing Library                 |
+| **Calidad de código**    | ESLint                                       |
+| **Control de Versiones** | Git & GitHub                                 |
+| **Deployment**           | GitHub Pages (carpeta `docs/`)               |
 
 ## Contenido de la Página
 
-### **Secciones Principales:**
+### Rutas
+| Ruta      | Página                                  |
+|-----------|-----------------------------------------|
+| `#/home`  | Bienvenida: inicio de sesión y registro |
+| `#/`      | Aplicación principal (requiere sesión)  |
+
+### Secciones de la aplicación principal
 
 1. **Inicio**
-   - Presentación del sistema
-   - Navegación principal
-
+   - Presentación del sistema y menú de navegación
 2. **Organizador de Maquinaria**
-   - Formulario de registro con carga de imágenes
-   - Lista dinámica con fotos y detalles
-
+   - Formulario con validación en tiempo real y carga opcional de foto
+   - Lista dinámica con confirmación antes de eliminar
 3. **Registro de Ganadería**
-   - Control de inventario por animal y raza
+   - Inventario por tipo de animal y raza
    - Contadores dinámicos (+1, -1)
-   - Gestión de stock en tiempo real
-
 4. **Calculadora de Costos de Siembra**
-   - Cálculo automático de costos por hectárea
-   - Estimación de utilidades y rentabilidad
-   - Validación de campos numéricos
+   - Costo por hectárea, costo total, ingreso esperado y utilidad
+   - Validación de campos numéricos (vacíos, letras, negativos, máximos)
+5. **Clima**
+   - Mapa interactivo: al hacer clic se muestran temperatura, viento, humedad y probabilidad de lluvia
+6. **Bolsa de Cereales**
+   - Tarjetas de la Bolsa de Rosario y la Bolsa de Córdoba generadas desde `src/data/cotizaciones.json`
 
-5. **Bolsa de Valores**
-   - Enlaces a Bolsa de Rosario
-   - Enlaces a Bolsa de Córdoba
-   - Acceso directo a cotizaciones
-
-### **Funcionalidades Técnicas:**
-- **Validación de formularios** con mensajes de error
-- **Almacenamiento persistente** con localStorage
+### Funcionalidades Técnicas
+- **Validaciones en tiempo real** (`onChange`) con mensajes accesibles (`role="alert"`, `aria-invalid`)
+- Al enviar un formulario con datos inválidos se avisa al usuario y **se blanquean los campos incorrectos**
+- **Sesión compartida con Context** (`useContext`) y rutas protegidas
 - **Diseño responsivo** para desktop y móvil
+
+## Estructura del Proyecto
+
+```
+proyecto2025-marfortt-baudino/
+├── Sketch/            # Bocetos en papel (PC y Móvil)
+├── Mockup/            # Mockups desktop y mobile
+├── docs/              # Build de producción publicado en GitHub Pages
+└── frontend/          # Código fuente (React + Vite)
+    ├── index.html
+    └── src/
+        ├── components/   # Componentes reutilizables (Button, Card, Input, ConfirmModal, secciones)
+        ├── contexts/     # Contexto y proveedor de sesión
+        ├── data/         # JSON local (cotizaciones)
+        ├── hooks/        # Hook useFormulario (validación de formularios)
+        ├── imagenes/     # Imágenes del sitio
+        ├── layouts/      # MainLayout (header + Outlet + footer)
+        ├── pages/        # HomePage (login/registro) e IndexPage (principal)
+        ├── styles/       # Hoja de estilos SCSS
+        ├── utils/        # Validaciones, cálculos, clima y localStorage
+        └── __tests__/    # Tests con Jest + React Testing Library
+```
 
 ## Enlaces
 
@@ -76,55 +110,56 @@
 
 ## Instalación y Uso
 
-### **Requisitos Previos:**
+### Requisitos Previos
+- Node.js 18 o superior y npm
 - Navegador web moderno (Chrome, Firefox, Safari, Edge)
 
-### **Instrucciones:**
+### Instrucciones
 1. **Clonar el repositorio:**
    ```bash
    git clone https://github.com/UCC-TallerDesarrolloWeb/proyecto2025-marfortt-baudino.git
    ```
-
-2. **Navegar al directorio:**
+2. **Instalar dependencias:**
    ```bash
-   cd proyecto2025-marfortt-baudino
+   cd proyecto2025-marfortt-baudino/frontend
+   npm install
    ```
+3. **Levantar el servidor de desarrollo:**
+   ```bash
+   npm run dev
+   ```
+4. Abrir **http://localhost:5173/** en el navegador.
 
-3. **Abrir en navegador:**
-   - Abrir `index.html` directamente en el navegador
-   - O usar un servidor local como Live Server
+### Uso de la Aplicación
+1. **Registro / Login**: Creá una cuenta y luego iniciá sesión
+2. **Maquinaria**: Completá el formulario y, opcionalmente, agregá una foto
+3. **Ganadería**: Seleccioná tipo de animal, raza y cantidad inicial
+4. **Calculadora**: Ingresá hectáreas, dosis y precio de semilla (obligatorios) y el resto de los costos
+5. **Clima**: Hacé clic en cualquier punto del mapa
+6. **Bolsa**: Hacé clic en una tarjeta para ver los precios actualizados
 
-### **Uso de la Aplicación:**
-1. **Maquinaria**: Completa el formulario y opcionalmente agrega una foto
-2. **Ganadería**: Selecciona tipo de animal, raza y cantidad inicial
-3. **Calculadora**: Ingresa los datos de hectáreas, costos y precios
-4. **Bolsa**: Haz clic en los enlaces para ver cotizaciones
+## Tests
 
-## Segundo Parcial
+Los tests están en `frontend/src/__tests__/` (17 tests: componentes genéricos, validaciones, cálculos, calculadora, ganadería, navegación y sesión).
 
-## Ejecucion de React (Vite)
-- Requisitos: Node 18+ y npm
-- Comandos:
-  - cd frontend
-  - npm install
-  - npm run dev
-  - Abrir http://localhost:5173/
-- Rutas:
-  - /#/home (login/registro)
-  - /#/ (aplicacion principal)
+```bash
+cd frontend
+npm test
+```
 
+## Publicación en GitHub Pages
 
-- [x] Vite + React instalado
-- [x] Hooks: useState, useEffect, useContext, useNavigate
-- [x] react-router-dom con Outlet (layouts)
-- [x] Estructura: components/, pages/, styles/
-- [x] Imports con alias @
-- [x] Validaciones en tiempo real (onChange) + mensajes accesibles
-- [x] Componentes genericos Button, Card, Input
-- [x] localStorage: sesion/maquinaria/ganaderia
-- [x] fetch: clima (Open-Meteo)
-- [x] Listas dinamicas con JSON local (demo cotizaciones)
+GitHub Pages publica la carpeta `docs/` de la rama `main`. Para actualizarla:
+
+```bash
+cd frontend
+npm run build   # genera el build en ../docs
+```
+
+Luego hacer commit y push de la carpeta `docs/`.
+
 ---
+
 
 ## Requisitos del Primer Parcial
 

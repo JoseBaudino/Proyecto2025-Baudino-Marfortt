@@ -1,0 +1,50 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import Button from '@/components/Button';
+import Input from '@/components/Input';
+import QuotesList from '@/components/QuotesList';
+import cotizaciones from '@/data/cotizaciones.json';
+
+describe('Componentes genéricos', () => {
+  test('Button renderiza el texto esperado y ejecuta onClick', async () => {
+    const alHacerClic = jest.fn();
+    render(<Button onClick={alHacerClic}>Guardar</Button>);
+    const boton = screen.getByRole('button', { name: 'Guardar' });
+    expect(boton).toHaveClass('btn');
+    expect(boton).toHaveAttribute('type', 'button');
+    await userEvent.click(boton);
+    expect(alHacerClic).toHaveBeenCalledTimes(1);
+  });
+
+  test('Input asocia el label con el campo mediante el atributo for', () => {
+    render(<Input label="Hectáreas" id="hectareas" maxLength={10} />);
+    const campo = screen.getByLabelText('Hectáreas');
+    expect(campo).toHaveAttribute('id', 'hectareas');
+    expect(campo).toHaveAttribute('maxLength', '10');
+  });
+
+  test('Input muestra el error de forma accesible (role=alert y aria-invalid)', () => {
+    render(<Input label="Email" id="email" error="Ingrese un email válido" />);
+    expect(screen.getByRole('alert')).toHaveTextContent('Ingrese un email válido');
+    expect(screen.getByLabelText('Email')).toHaveAttribute('aria-invalid', 'true');
+  });
+
+  test('Input con options renderiza un select con todas las opciones', () => {
+    render(<Input label="Tipo" id="tipo" options={['Tractor', 'Arado']} placeholderOption="Elegir" />);
+    expect(screen.getByLabelText('Tipo').tagName).toBe('SELECT');
+    expect(screen.getAllByRole('option')).toHaveLength(3);
+  });
+
+  test('QuotesList renderiza una tarjeta por cada bolsa del JSON local', () => {
+    render(<QuotesList />);
+    cotizaciones.forEach((bolsa) => {
+      expect(screen.getByRole('heading', { name: bolsa.nombre })).toBeInTheDocument();
+      expect(screen.getByAltText(bolsa.alt)).toBeInTheDocument();
+    });
+  });
+
+  test('QuotesList muestra un mensaje cuando no hay datos', () => {
+    render(<QuotesList items={[]} />);
+    expect(screen.getByText('No hay cotizaciones disponibles.')).toBeInTheDocument();
+  });
+});

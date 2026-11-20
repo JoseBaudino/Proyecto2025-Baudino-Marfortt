@@ -1,0 +1,28 @@
+[
+  {
+    "id": "rosario",
+    "nombre": "Bolsa de Comercio de Rosario",
+    "descripcion": "Precios pizarra de la Cámara Arbitral de Cereales",
+    "logo": "rosario",
+    "alt": "Logo de la Bolsa de Comercio de Rosario",
+    "url": "https://www.cac.bcr.com.ar/es/precios-de-pizarra",
+    "precios": [
+      { "grano": "Soja", "precio": 280 },
+      { "grano": "Maíz", "precio": 175 },
+      { "grano": "Trigo", "precio": 195 }
+    ]
+  },
+  {
+    "id": "cordoba",
+    "nombre": "Bolsa de Cereales de Córdoba",
+    "descripcion": "Información de mercados y precios de referencia",
+    "logo": "cordoba",
+    "alt": "Logo de la Bolsa de Cereales de Córdoba",
+    "url": "https://www.bccba.org.ar/",
+    "precios": [
+      { "grano": "Soja", "precio": 275 },
+      { "grano": "Maíz", "precio": 170 },
+      { "grano": "Sorgo", "precio": 160 }
+    ]
+  }
+]

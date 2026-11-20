@@ -1,142 +1,177 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useSession } from '@/contexts/session';
+import useFormulario from '@/hooks/useFormulario';
 import Input from '@/components/Input';
 import Button from '@/components/Button';
-import Card from '@/components/Card';
-import '@/styles/Pages.scss';
+import { CLAVES, leerLocal, guardarLocal } from '@/utils/storage';
+import { validarEmail, validarPassword, validarTexto } from '@/utils/validaciones';
 
-export default function HomePage() {
+/**
+ * Validadores del formulario de login.
+ * @constant
+ * @type {Object<string, Function>}
+ */
+const VALIDAR_LOGIN = {
+  email: validarEmail,
+  password: validarPassword,
+};
+
+/**
+ * Validadores del formulario de registro.
+ * @constant
+ * @type {Object<string, Function>}
+ */
+const VALIDAR_REGISTRO = {
+  nombre: (valor) => validarTexto(valor, 'El nombre'),
+  email: validarEmail,
+  password: validarPassword,
+  confirmar: (valor, valores) => {
+    if (!valor) return 'Repita la contraseña';
+    return valor === valores.password ? '' : 'Las contraseñas no coinciden';
+  },
+};
+
+/**
+ * Página de bienvenida con los formularios de inicio de sesión y registro.
+ * @method HomePage
+ * @return {JSX.Element} Página de login / registro
+ */
+const HomePage = () => {
   const navigate = useNavigate();
-  const { setSession } = useSession() || { setSession: ()=>{} };
-  const [showRegister, setShowRegister] = useState(false);
-  const [message, setMessage] = useState({ text: '', type: '' });
+  const { session, login } = useSession();
+  const [mostrarRegistro, setMostrarRegistro] = useState(false);
+  const [mensaje, setMensaje] = useState({ texto: '', tipo: '' });
 
-  // Controlled form state (simple)
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
-  const [loginErrors, setLoginErrors] = useState({ email: '', password: '' });
+  const loginForm = useFormulario({ email: leerLocal(CLAVES.USUARIO)?.email || '', password: '' }, VALIDAR_LOGIN);
+  const registroForm = useFormulario({ nombre: '', email: '', password: '', confirmar: '' }, VALIDAR_REGISTRO);
 
-  const [regName, setRegName] = useState('');
-  const [regEmail, setRegEmail] = useState('');
-  const [regPassword, setRegPassword] = useState('');
-  const [regConfirm, setRegConfirm] = useState('');
-  const [regErrors, setRegErrors] = useState({ name:'', email:'', password:'', confirm:'' });
-
+  // El mensaje temporal se oculta solo a los 4 segundos
   useEffect(() => {
-    // Pre-fill login email if user exists
-    const user = localStorage.getItem('agroGestion_user');
-    if (user) {
-      try {
-        const parsed = JSON.parse(user);
-        setLoginEmail(parsed?.email || '');
-      } catch {
-        // ignore parse errors
-      }
-    }
-  }, []);
+    if (!mensaje.texto) return undefined;
+    const temporizador = setTimeout(() => setMensaje({ texto: '', tipo: '' }), 4000);
+    return () => clearTimeout(temporizador);
+  }, [mensaje]);
 
-  const showTmpMessage = (text, type='success') => {
-    setMessage({ text, type });
-    setTimeout(() => setMessage({ text:'', type:'' }), 4000);
-  };
+  if (session) return <Navigate to="/" replace />;
 
-  const getRegisteredUser = () => {
-    const u = localStorage.getItem('agroGestion_user');
-    return u ? JSON.parse(u) : null;
-  };
+  /**
+   * Muestra un mensaje de éxito o error en la parte superior del formulario.
+   * @method avisar
+   * @param {string} texto - Texto del mensaje
+   * @param {string} [tipo='success'] - Tipo de mensaje: success o error
+   * @return {void}
+   */
+  const avisar = (texto, tipo = 'success') => setMensaje({ texto, tipo });
 
-  const validateRegister = (name, email, password, confirm) => {
-    if (!name.trim()) return { isValid: false, message: 'El nombre es requerido' };
-    if (!email.includes('@')) return { isValid: false, message: 'Ingrese un email válido' };
-    const existingUser = getRegisteredUser();
-    if (existingUser && existingUser.email === email) return { isValid: false, message: 'Ya existe una cuenta con este email' };
-    if (password.length < 8) return { isValid: false, message: 'La contraseña debe tener al menos 8 caracteres' };
-    if (password !== confirm) return { isValid: false, message: 'Las contraseñas no coinciden' };
-    return { isValid: true };
-  };
-
-  // Validaciones en tiempo real (onChange)
-  useEffect(() => {
-    setLoginErrors({
-      email: loginEmail && !loginEmail.includes('@') ? 'Email inválido' : '',
-      password: loginPassword && loginPassword.length < 8 ? 'Mínimo 8 caracteres' : ''
-    })
-  }, [loginEmail, loginPassword])
-
-  useEffect(() => {
-    setRegErrors({
-      name: regName && !regName.trim() ? 'Nombre requerido' : '',
-      email: regEmail && !regEmail.includes('@') ? 'Email inválido' : '',
-      password: regPassword && regPassword.length < 8 ? 'Mínimo 8 caracteres' : '',
-      confirm: regConfirm && regConfirm !== regPassword ? 'No coincide con contraseña' : ''
-    })
-  }, [regName, regEmail, regPassword, regConfirm])
-
-  const saveUserData = (name, email, password) => {
-    const userData = { name, email, password, registeredAt: new Date().toISOString() };
-    localStorage.setItem('agroGestion_user', JSON.stringify(userData));
-  };
-
-  const handleLogin = (e) => {
+  /**
+   * Valida el login y, si las credenciales coinciden con el usuario registrado, inicia la sesión.
+   * @method manejarLogin
+   * @param {React.FormEvent} e - Evento submit del formulario
+   * @return {void}
+   */
+  const manejarLogin = (e) => {
     e.preventDefault();
-    const registered = getRegisteredUser();
-    if (!loginEmail || !loginPassword) { showTmpMessage('Por favor, complete todos los campos', 'error'); return; }
-    if (registered && registered.email === loginEmail && registered.password === loginPassword) {
-      const sess = { email: loginEmail, loginTime: new Date().toISOString() };
-      localStorage.setItem('agroGestion_session', JSON.stringify(sess));
-      if (setSession) setSession(sess);
-      showTmpMessage('¡Bienvenido! Redirigiendo...', 'success');
-      setTimeout(() => { navigate('/'); }, 800);
+    const { valido, mensajes } = loginForm.validarTodo();
+    if (!valido) {
+      avisar(mensajes[0], 'error');
+      return;
+    }
+    const usuario = leerLocal(CLAVES.USUARIO);
+    const { email, password } = loginForm.valores;
+    if (!usuario) {
+      avisar('No hay usuario registrado. Por favor, regístrese primero.', 'error');
+    } else if (usuario.email !== email.trim() || usuario.password !== password) {
+      loginForm.setValor('password', '');
+      avisar('Credenciales incorrectas. Verifique su email y contraseña.', 'error');
     } else {
-      if (!registered) showTmpMessage('No hay usuario registrado. Por favor, regístrese primero.', 'error');
-      else showTmpMessage('Credenciales incorrectas. Verifique su email y contraseña.', 'error');
+      login(usuario.email);
+      navigate('/');
     }
   };
 
-  const handleRegister = (e) => {
+  /**
+   * Valida el formulario de registro y guarda el nuevo usuario en localStorage.
+   * @method manejarRegistro
+   * @param {React.FormEvent} e - Evento submit del formulario
+   * @return {void}
+   */
+  const manejarRegistro = (e) => {
     e.preventDefault();
-    const v = validateRegister(regName, regEmail, regPassword, regConfirm);
-    if (!v.isValid) { showTmpMessage(v.message, 'error'); return; }
-    saveUserData(regName, regEmail, regPassword);
-    showTmpMessage('¡Cuenta creada exitosamente! Ahora puede iniciar sesión.', 'success');
-    setTimeout(() => { setShowRegister(false); setLoginEmail(regEmail); }, 800);
+    const { valido, mensajes } = registroForm.validarTodo();
+    if (!valido) {
+      avisar(mensajes[0], 'error');
+      return;
+    }
+    const { nombre, email, password } = registroForm.valores;
+    if (leerLocal(CLAVES.USUARIO)?.email === email.trim()) {
+      registroForm.setValor('email', '');
+      avisar('Ya existe una cuenta con este email', 'error');
+      return;
+    }
+    guardarLocal(CLAVES.USUARIO, { name: nombre.trim(), email: email.trim(), password, registeredAt: new Date().toISOString() });
+    loginForm.setValor('email', email.trim());
+    registroForm.reiniciar();
+    setMostrarRegistro(false);
+    avisar('¡Cuenta creada exitosamente! Ahora puede iniciar sesión.');
+  };
+
+  /**
+   * Cambia entre el formulario de login y el de registro.
+   * @method alternarFormulario
+   * @param {boolean} registro - true para mostrar el registro, false para el login
+   * @return {Function} Manejador del evento click
+   */
+  const alternarFormulario = (registro) => (e) => {
+    e.preventDefault();
+    setMostrarRegistro(registro);
+    setMensaje({ texto: '', tipo: '' });
   };
 
   return (
-    <div className="hero">
+    <main className="hero">
       <div className="overlay">
         <h1>🌱 Bienvenido a AgroGestión 360 🌱</h1>
         <p>La plataforma integral para gestión de maquinaria, ganadería y costos de siembra.</p>
 
-        {message.text && (
-          <div className={`auth-message ${message.type}`} style={{display:'block'}}>{message.text}</div>
+        {mensaje.texto && (
+          <div className={`auth-message ${mensaje.tipo}`} role="alert">
+            {mensaje.texto}
+          </div>
         )}
 
         <div className="auth-container">
-          <div id="login-form" className={`auth-form ${!showRegister ? 'active' : ''}`}>
-            <h2>Iniciar Sesión</h2>
-            <form id="login-form-element" onSubmit={handleLogin}>
-              <Input label="Correo Electrónico:" id="login-email" type="email" name="email" placeholder="Ingrese su correo electrónico" required value={loginEmail} onChange={e=>setLoginEmail(e.target.value)} error={loginErrors.email} />
-              <Input label="Contraseña:" id="login-password" type="password" name="password" placeholder="Ingrese su contraseña" required value={loginPassword} onChange={e=>setLoginPassword(e.target.value)} error={loginErrors.password} />
-              <Button type="submit" className="primary">Iniciar Sesión</Button>
-            </form>
-            <p className="auth-switch">¿No tienes cuenta? <a href="#" onClick={(e)=>{e.preventDefault(); setShowRegister(true);}}>Regístrate aquí</a></p>
-          </div>
-
-          <div id="register-form" className={`auth-form ${showRegister ? 'active' : ''}`}>
-            <h2>Crear Cuenta</h2>
-            <form id="register-form-element" onSubmit={handleRegister}>
-              <Input label="Nombre Completo:" id="register-name" name="name" placeholder="Ingrese su nombre completo" required value={regName} onChange={e=>setRegName(e.target.value)} error={regErrors.name} />
-              <Input label="Correo Electrónico:" id="register-email" type="email" name="email" placeholder="ejemplo@correo.com" required value={regEmail} onChange={e=>setRegEmail(e.target.value)} error={regErrors.email} />
-              <Input label="Contraseña:" id="register-password" type="password" name="password" placeholder="Mínimo 8 caracteres" minLength={8} required value={regPassword} onChange={e=>setRegPassword(e.target.value)} error={regErrors.password} />
-              <Input label="Confirmar Contraseña:" id="register-confirm" type="password" name="confirm" placeholder="Repita su contraseña" required value={regConfirm} onChange={e=>setRegConfirm(e.target.value)} error={regErrors.confirm} />
-              <Button type="submit" className="primary">Crear Cuenta</Button>
-            </form>
-            <p className="auth-switch">¿Ya tienes cuenta? <a href="#" onClick={(e)=>{e.preventDefault(); setShowRegister(false);}}>Inicia sesión aquí</a></p>
-          </div>
+          {!mostrarRegistro ? (
+            <section id="login-form" className="auth-form active">
+              <h2>Iniciar Sesión</h2>
+              <form onSubmit={manejarLogin} noValidate>
+                <Input label="Correo electrónico:" id="login-email" type="email" name="email" placeholder="Ingrese su correo electrónico" maxLength={60} size={30} value={loginForm.valores.email} onChange={loginForm.cambiar} error={loginForm.errores.email} />
+                <Input label="Contraseña:" id="login-password" type="password" name="password" placeholder="Ingrese su contraseña" maxLength={30} size={30} value={loginForm.valores.password} onChange={loginForm.cambiar} error={loginForm.errores.password} />
+                <Button type="submit" className="primary">Iniciar Sesión</Button>
+              </form>
+              <p className="auth-switch">
+                ¿No tenés cuenta? <a href="#/home" onClick={alternarFormulario(true)}>Registrate aquí</a>
+              </p>
+            </section>
+          ) : (
+            <section id="register-form" className="auth-form active">
+              <h2>Crear Cuenta</h2>
+              <form onSubmit={manejarRegistro} noValidate>
+                <Input label="Nombre completo:" id="register-name" name="nombre" placeholder="Ingrese su nombre completo" maxLength={50} size={30} value={registroForm.valores.nombre} onChange={registroForm.cambiar} error={registroForm.errores.nombre} />
+                <Input label="Correo electrónico:" id="register-email" type="email" name="email" placeholder="ejemplo@correo.com" maxLength={60} size={30} value={registroForm.valores.email} onChange={registroForm.cambiar} error={registroForm.errores.email} />
+                <Input label="Contraseña:" id="register-password" type="password" name="password" placeholder="Mínimo 8 caracteres" maxLength={30} size={30} value={registroForm.valores.password} onChange={registroForm.cambiar} error={registroForm.errores.password} />
+                <Input label="Confirmar contraseña:" id="register-confirm" type="password" name="confirmar" placeholder="Repita su contraseña" maxLength={30} size={30} value={registroForm.valores.confirmar} onChange={registroForm.cambiar} error={registroForm.errores.confirmar} />
+                <Button type="submit" className="primary">Crear Cuenta</Button>
+              </form>
+              <p className="auth-switch">
+                ¿Ya tenés cuenta? <a href="#/home" onClick={alternarFormulario(false)}>Iniciá sesión aquí</a>
+              </p>
+            </section>
+          )}
         </div>
       </div>
-    </div>
+    </main>
   );
-}
+};
+
+export default HomePage;
