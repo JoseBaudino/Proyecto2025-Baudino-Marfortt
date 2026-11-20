@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Button from '@/components/Button';
 import useLocalStorage from '@/hooks/useLocalStorage';
-import { obtenerClima } from '@/utils/clima';
+import { obtenerClima } from '@/api/clima';
 import { CLAVES, leerLocal } from '@/utils/storage';
 
 /**
@@ -94,8 +94,14 @@ const WeatherPicker = () => {
     let cancelado = false;
     const campoGuardado = leerLocal(CLAVES.CAMPO);
 
-    cargarLeaflet()
-      .then((L) => {
+    /**
+     * Carga Leaflet, crea el mapa y registra el clic para elegir un punto.
+     * @method iniciarMapa
+     * @return {Promise<void>}
+     */
+    const iniciarMapa = async () => {
+      try {
+        const L = await cargarLeaflet();
         if (cancelado) return;
         const centro = campoGuardado ? [campoGuardado.lat, campoGuardado.lng] : CENTRO_ARGENTINA;
         mapa.current = L.map(contenedorMapa.current).setView(centro, campoGuardado ? 12 : 5);
@@ -114,8 +120,12 @@ const WeatherPicker = () => {
 
         setMapaListo(true);
         if (campoGuardado) buscarClima(campoGuardado.lat, campoGuardado.lng, setEstado);
-      })
-      .catch(() => setEstado({ cargando: false, error: 'No se pudo cargar el mapa', datos: null }));
+      } catch (err) {
+        console.error('Error al cargar el mapa:', err);
+        setEstado({ cargando: false, error: 'No se pudo cargar el mapa', datos: null });
+      }
+    };
+    iniciarMapa();
 
     return () => {
       cancelado = true;

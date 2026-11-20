@@ -1,6 +1,7 @@
-import cotizaciones from '@/data/cotizaciones.json';
-import logoRosario from '@/imagenes/logo-bolsa-rosario.png';
-import logoCordoba from '@/imagenes/logo-bolsa-cordoba.png';
+import { useEffect, useState } from 'react';
+import { obtenerCotizaciones } from '@/api/cotizaciones';
+import logoRosario from '@/assets/imagenes/logo-bolsa-rosario.png';
+import logoCordoba from '@/assets/imagenes/logo-bolsa-cordoba.png';
 
 /**
  * Relación entre el nombre de logo del JSON y la imagen importada.
@@ -18,14 +19,37 @@ const LOGOS = { rosario: logoRosario, cordoba: logoCordoba };
 const formatearPesos = (valor) => `$ ${valor.toLocaleString('es-AR', { maximumFractionDigits: 2 })}`;
 
 /**
- * Lista dinámica de bolsas de cereales con sus precios de pizarra, generada desde un JSON local.
- * Los precios son los publicados por cada bolsa en la fecha indicada.
+ * Lista dinámica de bolsas de cereales con sus precios de pizarra.
+ * Los datos se piden al servicio simulado de la carpeta api (que lee un JSON local).
  * @method QuotesList
- * @param {Object} props - Propiedades del componente
- * @param {Array<Object>} [props.items=cotizaciones] - Bolsas a mostrar (por defecto, las del JSON local)
  * @return {JSX.Element} Grilla de tarjetas de cotizaciones
  */
-const QuotesList = ({ items = cotizaciones }) => {
+const QuotesList = () => {
+  const [items, setItems] = useState([]);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    /**
+     * Pide las cotizaciones al servicio y las guarda en el estado.
+     * @method cargarCotizaciones
+     * @return {Promise<void>}
+     */
+    const cargarCotizaciones = async () => {
+      try {
+        setItems(await obtenerCotizaciones());
+      } catch (err) {
+        console.error('Error al obtener las cotizaciones:', err);
+        setError('No se pudieron cargar las cotizaciones.');
+      } finally {
+        setCargando(false);
+      }
+    };
+    cargarCotizaciones();
+  }, []);
+
+  if (cargando) return <p className="muted">Cargando cotizaciones…</p>;
+  if (error) return <p className="field-error" role="alert">{error}</p>;
   if (items.length === 0) return <p className="muted">No hay cotizaciones disponibles.</p>;
   return (
     <div className="preview-grid">

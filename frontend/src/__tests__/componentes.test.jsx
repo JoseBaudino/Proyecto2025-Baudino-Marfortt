@@ -4,6 +4,7 @@ import Button from '@/components/Button';
 import Input from '@/components/Input';
 import QuotesList from '@/components/QuotesList';
 import cotizaciones from '@/data/cotizaciones.json';
+import * as api from '@/api/cotizaciones';
 
 describe('Componentes genéricos', () => {
   test('Button renderiza el texto esperado y ejecuta onClick', async () => {
@@ -35,24 +36,37 @@ describe('Componentes genéricos', () => {
     expect(screen.getAllByRole('option')).toHaveLength(3);
   });
 
-  test('QuotesList renderiza una tarjeta por cada bolsa del JSON local', () => {
+  test('QuotesList pide los datos al servicio y renderiza una tarjeta por cada bolsa', async () => {
     render(<QuotesList />);
-    cotizaciones.forEach((bolsa) => {
-      expect(screen.getByRole('heading', { name: bolsa.nombre })).toBeInTheDocument();
+    expect(screen.getByText('Cargando cotizaciones…')).toBeInTheDocument();
+    for (const bolsa of cotizaciones) {
+      expect(await screen.findByRole('heading', { name: bolsa.nombre })).toBeInTheDocument();
       expect(screen.getByAltText(bolsa.alt)).toBeInTheDocument();
-    });
+    }
   });
 
-  test('QuotesList muestra los precios en pesos y dólares en una tabla con caption', () => {
+  test('QuotesList muestra los precios en pesos y dólares en una tabla con caption', async () => {
     render(<QuotesList />);
-    const [tablaRosario] = screen.getAllByRole('table', { name: 'Precios por tonelada' });
+    const [tablaRosario] = await screen.findAllByRole('table', { name: 'Precios por tonelada' });
     const filaSoja = within(tablaRosario).getByRole('row', { name: /Soja/ });
     expect(filaSoja).toHaveTextContent('$ 550.000');
     expect(filaSoja).toHaveTextContent('US$ 353,47');
   });
 
-  test('QuotesList muestra un mensaje cuando no hay datos', () => {
-    render(<QuotesList items={[]} />);
-    expect(screen.getByText('No hay cotizaciones disponibles.')).toBeInTheDocument();
+  test('QuotesList muestra un mensaje cuando el servicio no devuelve datos', async () => {
+    jest.spyOn(api, 'obtenerCotizaciones').mockResolvedValueOnce([]);
+    render(<QuotesList />);
+    expect(await screen.findByText('No hay cotizaciones disponibles.')).toBeInTheDocument();
   });
+
+  test('QuotesList avisa si el servicio falla', async () => {
+    jest.spyOn(api, 'obtenerCotizaciones').mockRejectedValueOnce(new Error('sin conexión'));
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    render(<QuotesList />);
+    expect(await screen.findByRole('alert')).toHaveTextContent('No se pudieron cargar las cotizaciones.');
+  });
+});
+
+afterEach(() => {
+  jest.restoreAllMocks();
 });

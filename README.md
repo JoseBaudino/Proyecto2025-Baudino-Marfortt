@@ -98,15 +98,17 @@ Proyecto2025-Baudino-Marfortt/
 └── frontend/          # Código fuente (React + Vite)
     ├── index.html
     └── src/
+        ├── api/          # Servicios: clima (fetch a Open-Meteo) y cotizaciones (servicio simulado)
+        ├── assets/
+        │   └── imagenes/ # Imágenes del sitio
         ├── components/   # Componentes reutilizables (Button, Card, Input, ConfirmModal, secciones)
         ├── contexts/     # Contexto y proveedor de sesión
         ├── data/         # JSON local (cotizaciones)
         ├── hooks/        # Hooks propios: useFormulario, useLocalStorage y useTema
-        ├── imagenes/     # Imágenes del sitio
         ├── layouts/      # MainLayout (header + Outlet + footer)
         ├── pages/        # HomePage (login/registro) e IndexPage (principal)
         ├── styles/       # Hoja de estilos SCSS
-        ├── utils/        # Validaciones, cálculos, clima y localStorage
+        ├── utils/        # Validaciones, cálculos y localStorage
         └── __tests__/    # Tests con Jest + React Testing Library
 ```
 
@@ -148,7 +150,7 @@ Proyecto2025-Baudino-Marfortt/
 
 ## Tests
 
-Los tests están en `frontend/src/__tests__/` (23 tests: componentes genéricos, tabla de precios, validaciones, cálculos, calculadora, ganadería, buscador y cambio de estado de maquinaria, panel de resumen, modo oscuro, navegación y sesión).
+Los tests están en `frontend/src/__tests__/` (24 tests: componentes genéricos, servicio y tabla de precios, validaciones, cálculos, calculadora, ganadería, buscador y cambio de estado de maquinaria, panel de resumen, modo oscuro, navegación y sesión).
 
 ```bash
 cd frontend
