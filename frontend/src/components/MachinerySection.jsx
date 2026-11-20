@@ -102,6 +102,18 @@ const MachinerySection = ({ maquinas, setMaquinas }) => {
   };
 
   /**
+   * Cambia el estado de una máquina: de Activo a Inactivo y viceversa.
+   * @method cambiarEstado
+   * @param {Object} maquina - Máquina a modificar
+   * @return {void}
+   */
+  const cambiarEstado = (maquina) => {
+    setMaquinas((prev) =>
+      prev.map((m) => (m === maquina ? { ...m, condition: m.condition === 'Activo' ? 'Inactivo' : 'Activo' } : m)),
+    );
+  };
+
+  /**
    * Elimina la máquina seleccionada y cierra el modal.
    * @method confirmarEliminar
    * @return {void}
@@ -155,6 +167,9 @@ const MachinerySection = ({ maquinas, setMaquinas }) => {
                 {m.notes && <p className="muted">{m.notes}</p>}
               </div>
               <div className="item-actions">
+                <Button onClick={() => cambiarEstado(m)} aria-label={`${m.condition === 'Activo' ? 'Desactivar' : 'Activar'} ${m.name}`}>
+                  {m.condition === 'Activo' ? 'Desactivar' : 'Activar'}
+                </Button>
                 <Button className="danger" onClick={() => setAEliminar(m)}>Eliminar</Button>
               </div>
             </li>

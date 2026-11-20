@@ -3,26 +3,31 @@
     "id": "rosario",
     "nombre": "Bolsa de Comercio de Rosario",
     "descripcion": "Precios pizarra de la Cámara Arbitral de Cereales",
+    "fecha": "19/11/2026",
     "logo": "rosario",
-    "alt": "Logo de la Bolsa de Comercio de Rosario",
+    "alt": "Logo de la Cámara Arbitral de Cereales de Rosario",
     "url": "https://www.cac.bcr.com.ar/es/precios-de-pizarra",
     "precios": [
-      { "grano": "Soja", "precio": 280 },
-      { "grano": "Maíz", "precio": 175 },
-      { "grano": "Trigo", "precio": 195 }
+      { "producto": "Soja", "pesos": 550000, "dolares": 353.47, "unidad": "t", "estimado": false },
+      { "producto": "Maíz", "pesos": 272000, "dolares": 174.81, "unidad": "t", "estimado": false },
+      { "producto": "Trigo", "pesos": 294084, "dolares": 189, "unidad": "t", "estimado": false },
+      { "producto": "Girasol", "pesos": 746880, "dolares": 480, "unidad": "t", "estimado": true },
+      { "producto": "Sorgo", "pesos": 287860, "dolares": 185, "unidad": "t", "estimado": true }
     ]
   },
   {
     "id": "cordoba",
     "nombre": "Bolsa de Cereales de Córdoba",
-    "descripcion": "Información de mercados y precios de referencia",
+    "descripcion": "Pizarra Córdoba",
+    "fecha": "20/11/2026",
     "logo": "cordoba",
     "alt": "Logo de la Bolsa de Cereales de Córdoba",
     "url": "https://www.bccba.org.ar/",
     "precios": [
-      { "grano": "Soja", "precio": 275 },
-      { "grano": "Maíz", "precio": 170 },
-      { "grano": "Sorgo", "precio": 160 }
+      { "producto": "Trigo duro", "pesos": 267075, "dolares": null, "unidad": "t", "estimado": true },
+      { "producto": "Maní runner", "pesos": 1056278, "dolares": 681, "unidad": "t", "estimado": false },
+      { "producto": "Maní industria", "pesos": 720607.5, "dolares": null, "unidad": "t", "estimado": true },
+      { "producto": "Expeller de soja", "pesos": 573884, "dolares": null, "unidad": "t", "estimado": false }
     ]
   }
 ]

@@ -10,7 +10,16 @@ import logoCordoba from '@/imagenes/logo-bolsa-cordoba.png';
 const LOGOS = { rosario: logoRosario, cordoba: logoCordoba };
 
 /**
- * Lista dinámica de bolsas de cereales con precios de referencia, generada desde un JSON local.
+ * Formatea un importe en pesos argentinos (ej: "$ 550.000").
+ * @method formatearPesos
+ * @param {number} valor - Importe en pesos
+ * @return {string} Importe formateado
+ */
+const formatearPesos = (valor) => `$ ${valor.toLocaleString('es-AR', { maximumFractionDigits: 2 })}`;
+
+/**
+ * Lista dinámica de bolsas de cereales con sus precios de pizarra, generada desde un JSON local.
+ * Los precios son los publicados por cada bolsa en la fecha indicada.
  * @method QuotesList
  * @param {Object} props - Propiedades del componente
  * @param {Array<Object>} [props.items=cotizaciones] - Bolsas a mostrar (por defecto, las del JSON local)
@@ -25,15 +34,30 @@ const QuotesList = ({ items = cotizaciones }) => {
           <img src={LOGOS[bolsa.logo]} alt={bolsa.alt} />
           <div className="preview-info">
             <h3>{bolsa.nombre}</h3>
-            <p>{bolsa.descripcion}</p>
-            <ul>
-              {bolsa.precios.map(({ grano, precio }) => (
-                <li key={grano}>
-                  {grano}: <strong>USD {precio}/t</strong>
-                </li>
-              ))}
-            </ul>
-            <p className="muted">Valores de referencia (demo). Ver precios actualizados ↗</p>
+            <p>{bolsa.descripcion} del {bolsa.fecha}</p>
+            <table className="tabla-precios">
+              <caption>Precios por tonelada</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Producto</th>
+                  <th scope="col">Pesos</th>
+                  <th scope="col">Dólares</th>
+                </tr>
+              </thead>
+              <tbody>
+                {bolsa.precios.map(({ producto, pesos, dolares, estimado }) => (
+                  <tr key={producto}>
+                    <td>
+                      {producto}
+                      {estimado && <abbr title="Precio estimado (sin cotización ese día)"> (E)</abbr>}
+                    </td>
+                    <td>{formatearPesos(pesos)}</td>
+                    <td>{dolares != null ? `US$ ${dolares.toLocaleString('es-AR')}` : '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p className="muted">(E) = precio estimado. Ver pizarra actualizada ↗</p>
           </div>
         </a>
       ))}

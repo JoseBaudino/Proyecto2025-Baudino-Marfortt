@@ -25,11 +25,11 @@
 - **Gestión de Maquinaria**: Registro con foto, precio y estado
 - **Control de Ganadería**: Inventario de animales por tipo y raza con contadores +1 / -1
 - **Calculadora de Costos**: Costo por hectárea, costo total, ingreso esperado y utilidad
-- **Clima**: Consulta en tiempo real a la API de Open-Meteo eligiendo un punto en el mapa
-- **Bolsa de Cereales**: Precios de referencia generados desde un JSON local, con enlace a cada bolsa
+- **Clima**: Consulta en tiempo real a la API de Open-Meteo eligiendo un punto en el mapa. Se puede guardar un punto como **"mi campo"** (queda en localStorage y el mapa arranca ahí)
+- **Bolsa de Cereales**: Precios de pizarra reales (en pesos y dólares, con su fecha) de Rosario y Córdoba, leídos desde un JSON local, con enlace a cada bolsa
 - **Almacenamiento Local**: Persistencia de sesión, maquinaria, ganadería y tema elegido entre visitas
 - **Panel de resumen**: Máquinas activas, total de animales y valor de la maquinaria en la portada
-- **Buscador de maquinaria**: Filtro en tiempo real por nombre/tipo y por estado
+- **Buscador de maquinaria**: Filtro en tiempo real por nombre/tipo y por estado; cada máquina tiene un botón para activarla o desactivarla
 - **Modo oscuro**: Botón 🌙 en el encabezado; la preferencia queda guardada
 - **Diseño responsive**: Menú hamburguesa en celulares y grillas que se adaptan al ancho
 
@@ -76,8 +76,11 @@
    - Validación de campos numéricos (vacíos, letras, negativos, máximos)
 5. **Clima**
    - Mapa interactivo: al hacer clic se muestran temperatura, viento, humedad y probabilidad de lluvia
+   - Botón "Guardar punto como mi campo": el punto queda guardado y se muestra con un círculo verde
 6. **Bolsa de Cereales**
    - Tarjetas de la Bolsa de Rosario y la Bolsa de Córdoba generadas desde `src/data/cotizaciones.json`
+   - Precios de pizarra reales: Rosario del 19/11/2026 ([CAC - BCR](https://www.cac.bcr.com.ar/es/precios-de-pizarra)) y Córdoba del 20/11/2026 ([BCCBA](https://www.bccba.org.ar/))
+   - Las bolsas no ofrecen una API pública que se pueda consultar desde el navegador, por eso los precios se actualizan editando el JSON (valores, `fecha` y si es precio estimado)
 
 ### Funcionalidades Técnicas
 - **Validaciones en tiempo real** (`onChange`) con mensajes accesibles (`role="alert"`, `aria-invalid`)
@@ -145,7 +148,7 @@ Proyecto2025-Baudino-Marfortt/
 
 ## Tests
 
-Los tests están en `frontend/src/__tests__/` (21 tests: componentes genéricos, validaciones, cálculos, calculadora, ganadería, buscador de maquinaria, panel de resumen, modo oscuro, navegación y sesión).
+Los tests están en `frontend/src/__tests__/` (23 tests: componentes genéricos, tabla de precios, validaciones, cálculos, calculadora, ganadería, buscador y cambio de estado de maquinaria, panel de resumen, modo oscuro, navegación y sesión).
 
 ```bash
 cd frontend

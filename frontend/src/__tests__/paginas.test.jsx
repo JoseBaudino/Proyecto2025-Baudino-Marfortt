@@ -125,6 +125,20 @@ describe('Maquinaria', () => {
   });
 });
 
+describe('Cambio de estado de maquinaria', () => {
+  test('el botón Desactivar/Activar cambia el estado y lo guarda', async () => {
+    localStorage.setItem(CLAVES.MAQUINARIA, JSON.stringify(MAQUINAS_DEMO));
+    render(<Maquinaria />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Desactivar John Deere 6145J' }));
+    expect(screen.getByRole('button', { name: 'Activar John Deere 6145J' })).toBeInTheDocument();
+    expect(JSON.parse(localStorage.getItem(CLAVES.MAQUINARIA))[0].condition).toBe('Inactivo');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Activar Pla MV 3000' }));
+    expect(JSON.parse(localStorage.getItem(CLAVES.MAQUINARIA))[1].condition).toBe('Activo');
+  });
+});
+
 describe('Panel de resumen', () => {
   test('calcula máquinas activas, total de animales y valor de la maquinaria', () => {
     const razas = [{ type: 'Vaca', name: 'Angus', count: 120 }, { type: 'Toro', name: 'Hereford', count: 4 }];

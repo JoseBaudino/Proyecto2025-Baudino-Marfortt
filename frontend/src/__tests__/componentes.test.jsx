@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
@@ -41,6 +41,14 @@ describe('Componentes genéricos', () => {
       expect(screen.getByRole('heading', { name: bolsa.nombre })).toBeInTheDocument();
       expect(screen.getByAltText(bolsa.alt)).toBeInTheDocument();
     });
+  });
+
+  test('QuotesList muestra los precios en pesos y dólares en una tabla con caption', () => {
+    render(<QuotesList />);
+    const [tablaRosario] = screen.getAllByRole('table', { name: 'Precios por tonelada' });
+    const filaSoja = within(tablaRosario).getByRole('row', { name: /Soja/ });
+    expect(filaSoja).toHaveTextContent('$ 550.000');
+    expect(filaSoja).toHaveTextContent('US$ 353,47');
   });
 
   test('QuotesList muestra un mensaje cuando no hay datos', () => {
