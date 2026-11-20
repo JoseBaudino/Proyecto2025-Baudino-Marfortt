@@ -118,7 +118,8 @@ const MainLayout = ({ tema, alternarTema }) => {
       </main>
 
       <footer className="footer">
-        <p>© 2025 AgroGestión 360 - Marfortt, Renzo y Baudino, José</p>
+        {/* El año se calcula solo, así el footer nunca queda desactualizado */}
+        <p>© {new Date().getFullYear()} AgroGestión 360 - Marfortt, Renzo y Baudino, José</p>
       </footer>
 
       <ConfirmModal
