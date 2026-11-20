@@ -84,7 +84,7 @@
 ## Estructura del Proyecto
 
 ```
-Agrogestion-360/
+Proyecto2025-Baudino-Marfortt/
 ├── Sketch/            # Bocetos en papel (PC y Móvil)
 ├── Mockup/            # Mockups desktop y mobile
 ├── docs/              # Build de producción publicado en GitHub Pages
@@ -105,8 +105,8 @@ Agrogestion-360/
 
 ## Enlaces
 
-- **Sitio Web**: [AgroGestión 360 - GitHub Pages](https://josebaudino.github.io/Agrogestion-360/)
-- **Repositorio**: [GitHub Repository](https://github.com/JoseBaudino/Agrogestion-360)
+- **Sitio Web**: [AgroGestión 360 - GitHub Pages](https://josebaudino.github.io/Proyecto2025-Baudino-Marfortt/)
+- **Repositorio**: [GitHub Repository](https://github.com/JoseBaudino/Proyecto2025-Baudino-Marfortt)
 
 ## Instalación y Uso
 
@@ -117,11 +117,11 @@ Agrogestion-360/
 ### Instrucciones
 1. **Clonar el repositorio:**
    ```bash
-   git clone https://github.com/JoseBaudino/Agrogestion-360
+   git clone https://github.com/JoseBaudino/Proyecto2025-Baudino-Marfortt
    ```
 2. **Instalar dependencias:**
    ```bash
-   cd Agrogestion-360/frontend
+   cd Proyecto2025-Baudino-Marfortt/frontend
    npm install
    ```
 3. **Levantar el servidor de desarrollo:**
