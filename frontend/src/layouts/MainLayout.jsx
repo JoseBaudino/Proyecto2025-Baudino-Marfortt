@@ -27,6 +27,7 @@ const MainLayout = () => {
   const navigate = useNavigate();
   const { session, logout } = useSession();
   const [mostrarModal, setMostrarModal] = useState(false);
+  const [menuAbierto, setMenuAbierto] = useState(false);
 
   if (!session) return <Navigate to="/home" replace />;
 
@@ -42,13 +43,15 @@ const MainLayout = () => {
   };
 
   /**
-   * Devuelve un manejador de clic que hace scroll suave hasta la sección indicada.
+   * Devuelve un manejador de clic que hace scroll suave hasta la sección indicada
+   * y cierra el menú (en celulares).
    * @method irASeccion
    * @param {string} id - Id de la sección destino
    * @return {Function} Manejador del evento click
    */
   const irASeccion = (id) => (e) => {
     e.preventDefault();
+    setMenuAbierto(false);
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -60,6 +63,7 @@ const MainLayout = () => {
    */
   const pedirLogout = (e) => {
     e.preventDefault();
+    setMenuAbierto(false);
     setMostrarModal(true);
   };
 
@@ -68,13 +72,24 @@ const MainLayout = () => {
       <header className="site-header">
         <h1 className="site-title">
           <span className="logo">
-            AgroGestión <span className="accent">360</span>
+            🌾 AgroGestión <span className="accent">360</span>
           </span>
         </h1>
-        <div id="user-info" className="user-info">
-          👤 {session.email}
-        </div>
-        <nav className="main-nav" aria-label="Navegación principal">
+        {/* Botón hamburguesa: solo se ve en pantallas chicas (ver estilos) */}
+        <button
+          type="button"
+          className="menu-toggle"
+          aria-label={menuAbierto ? 'Cerrar menú' : 'Abrir menú'}
+          aria-expanded={menuAbierto}
+          aria-controls="menu-principal"
+          onClick={() => setMenuAbierto(!menuAbierto)}
+        >
+          {menuAbierto ? '✕' : '☰'}
+        </button>
+        <nav id="menu-principal" className={`main-nav ${menuAbierto ? 'abierto' : ''}`} aria-label="Navegación principal">
+          <span id="user-info" className="user-info">
+            👤 {session.email}
+          </span>
           {SECCIONES.map(({ id, texto }) => (
             <a key={id} href={`#${id}`} onClick={irASeccion(id)}>
               {texto}

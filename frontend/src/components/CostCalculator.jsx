@@ -82,20 +82,35 @@ const CostCalculator = () => {
       <h2>Calculadora de Costos de Siembra</h2>
       <p className="muted">Los campos con * son obligatorios.</p>
       <Card>
-        <form id="calc-form" onSubmit={calcular} noValidate>
+        <form id="calc-form" className="form-grid" onSubmit={calcular} noValidate>
           {CAMPOS.map(({ campo, id, label }) => (
             <Input key={campo} label={label} id={id} name={campo} inputMode="decimal" placeholder="0" maxLength={10} size={10} value={form.valores[campo]} onChange={form.cambiar} error={form.errores[campo]} />
           ))}
-          <Button type="submit" className="primary">Calcular</Button>
-          <Button className="secondary" onClick={limpiar}>Limpiar</Button>
+          <div className="form-actions">
+            <Button type="submit" className="primary">Calcular</Button>
+            <Button className="secondary" onClick={limpiar}>Limpiar</Button>
+          </div>
         </form>
       </Card>
       {resultado && (
-        <div id="calc-results" className="card" aria-live="polite">
-          <p><strong>Costo por hectárea:</strong> {formatearUSD(resultado.costoHa)}</p>
-          <p><strong>Costo total:</strong> {formatearUSD(resultado.costoTotal)}</p>
-          <p><strong>Ingreso esperado:</strong> {formatearUSD(resultado.ingresoTotal)}</p>
-          <p><strong>Utilidad estimada:</strong> {formatearUSD(resultado.utilidad)}</p>
+        <div id="calc-results" aria-live="polite">
+          <div className="resultado">
+            <span>Costo por hectárea</span>
+            <strong>{formatearUSD(resultado.costoHa)}</strong>
+          </div>
+          <div className="resultado">
+            <span>Costo total</span>
+            <strong>{formatearUSD(resultado.costoTotal)}</strong>
+          </div>
+          <div className="resultado">
+            <span>Ingreso esperado</span>
+            <strong>{formatearUSD(resultado.ingresoTotal)}</strong>
+          </div>
+          {/* La utilidad se pinta en verde si es ganancia y en rojo si es pérdida */}
+          <div className={`resultado ${resultado.utilidad >= 0 ? 'ganancia' : 'perdida'}`}>
+            <span>Utilidad estimada</span>
+            <strong>{formatearUSD(resultado.utilidad)}</strong>
+          </div>
         </div>
       )}
     </section>

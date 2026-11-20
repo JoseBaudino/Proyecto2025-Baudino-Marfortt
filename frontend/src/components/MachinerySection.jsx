@@ -107,15 +107,19 @@ const MachinerySection = () => {
     <section id="maquinaria" className="section">
       <h2>Organizador de Maquinaria</h2>
       <Card>
-        <form id="machinery-form" onSubmit={agregarMaquina} noValidate>
+        <form id="machinery-form" className="form-grid" onSubmit={agregarMaquina} noValidate>
           <Input label="Nombre" id="m-name" name="nombre" placeholder="Ej: John Deere 6145J" maxLength={40} size={40} value={form.valores.nombre} onChange={form.cambiar} error={form.errores.nombre} />
           <Input label="Tipo" id="m-type" name="tipo" options={TIPOS} placeholderOption="Seleccionar tipo" value={form.valores.tipo} onChange={form.cambiar} error={form.errores.tipo} />
           <Input label="Estado" id="m-condition" name="estado" options={ESTADOS} placeholderOption="Seleccionar estado" value={form.valores.estado} onChange={form.cambiar} error={form.errores.estado} />
           <Input label="Precio (USD)" id="m-price" name="precio" inputMode="decimal" placeholder="Ej: 85000" maxLength={12} size={12} value={form.valores.precio} onChange={form.cambiar} error={form.errores.precio} />
           <Input label="Notas" id="m-notes" name="notas" placeholder="Observaciones (opcional)" maxLength={100} size={40} value={form.valores.notas} onChange={form.cambiar} />
-          <label htmlFor="m-photo" className="file-label">Foto (opcional)</label>
-          <input id="m-photo" type="file" accept="image/*" ref={inputFoto} onChange={cambiarFoto} />
-          <Button type="submit" className="primary">Agregar</Button>
+          <div className="form-group">
+            <label htmlFor="m-photo">Foto (opcional)</label>
+            <input id="m-photo" type="file" accept="image/*" ref={inputFoto} onChange={cambiarFoto} />
+          </div>
+          <div className="form-actions">
+            <Button type="submit" className="primary">Agregar</Button>
+          </div>
         </form>
       </Card>
 
@@ -125,15 +129,17 @@ const MachinerySection = () => {
         <ul id="machinery-list" className="grid">
           {maquinas.map((m, idx) => (
             <li key={m.id ?? idx} className="item machinery-item">
-              {m.photo && (
-                <div className="machinery-photo">
-                  <img src={m.photo} alt={`Foto de ${m.name}`} className="machinery-image" />
-                </div>
-              )}
+              {m.photo && <img src={m.photo} alt={`Foto de ${m.name}`} className="machinery-image" />}
               <div className="machinery-info">
-                <strong>{m.name}</strong> ({m.type}) - {m.condition} - {formatearUSD(m.price)}
+                <h3>{m.name}</h3>
+                <p>
+                  {m.type} · <span className={`badge ${m.condition === 'Activo' ? 'badge-ok' : 'badge-off'}`}>{m.condition}</span>
+                </p>
+                <p className="precio">{formatearUSD(m.price)}</p>
                 {m.notes && <p className="muted">{m.notes}</p>}
-                <Button onClick={() => setAEliminar(m)}>Eliminar</Button>
+              </div>
+              <div className="item-actions">
+                <Button className="danger" onClick={() => setAEliminar(m)}>Eliminar</Button>
               </div>
             </li>
           ))}

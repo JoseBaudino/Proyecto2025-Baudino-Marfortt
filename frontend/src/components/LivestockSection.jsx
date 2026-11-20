@@ -82,11 +82,13 @@ const LivestockSection = () => {
     <section id="ganaderia" className="section">
       <h2>Registro de Ganadería</h2>
       <Card>
-        <form id="breed-form" onSubmit={agregarRaza} noValidate>
+        <form id="breed-form" className="form-grid" onSubmit={agregarRaza} noValidate>
           <Input label="Tipo de animal" id="b-type" name="tipo" options={ANIMALES} placeholderOption="Seleccionar animal" value={form.valores.tipo} onChange={form.cambiar} error={form.errores.tipo} />
           <Input label="Raza" id="b-name" name="raza" placeholder="Ej: Aberdeen Angus" maxLength={30} size={30} value={form.valores.raza} onChange={form.cambiar} error={form.errores.raza} />
           <Input label="Cantidad inicial" id="b-initial" name="cantidad" inputMode="numeric" placeholder="0" maxLength={6} size={6} value={form.valores.cantidad} onChange={form.cambiar} error={form.errores.cantidad} />
-          <Button type="submit" className="primary">Agregar</Button>
+          <div className="form-actions">
+            <Button type="submit" className="primary">Agregar</Button>
+          </div>
         </form>
       </Card>
 
@@ -96,10 +98,13 @@ const LivestockSection = () => {
         <ul id="breeds-list" className="grid">
           {razas.map((r, idx) => (
             <li key={r.id ?? idx} className="item">
-              <strong>{r.type}</strong> - {r.name}: {r.count} {r.count === 1 ? 'animal' : 'animales'}
-              <Button onClick={() => modificarCantidad(r, 1)} aria-label={`Sumar un animal a ${r.name}`}>+1</Button>
-              <Button onClick={() => modificarCantidad(r, -1)} aria-label={`Restar un animal a ${r.name}`}>-1</Button>
-              <Button onClick={() => setAEliminar(r)}>Eliminar</Button>
+              <h3>{r.type}</h3>
+              <p>{r.name}: {r.count} {r.count === 1 ? 'animal' : 'animales'}</p>
+              <div className="item-actions">
+                <Button onClick={() => modificarCantidad(r, 1)} aria-label={`Sumar un animal a ${r.name}`}>+1</Button>
+                <Button onClick={() => modificarCantidad(r, -1)} aria-label={`Restar un animal a ${r.name}`}>-1</Button>
+                <Button className="danger" onClick={() => setAEliminar(r)}>Eliminar</Button>
+              </div>
             </li>
           ))}
         </ul>

@@ -12,7 +12,7 @@ import Card from '@/components/Card';
  */
 const IndexPage = () => (
   <div>
-    <section id="inicio" className="hero">
+    <section id="inicio" className="hero hero-compacto">
       <div className="overlay">
         <h2>🌾 AgroGestión 360 🌾</h2>
         <p>Gestión integral para maquinaria, animales y costos de siembra en un solo lugar.</p>

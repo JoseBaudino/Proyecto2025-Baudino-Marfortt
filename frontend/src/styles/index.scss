@@ -1,59 +1,81 @@
 /* ==========================================================
    AgroGestión 360 - Hoja de estilos única (SCSS)
+   Enfoque "mobile first": primero se escriben los estilos
+   para celular y al final, con @media (min-width), se
+   agregan los ajustes para tablet y escritorio.
    ========================================================== */
 
 // ---------- Variables ----------
-$color-verde: #77e38e;
-$color-verde-btn: #64d87d;
-$color-verde-oscuro: #207f17;
-$color-oscuro: #0f1720;
-$color-texto: #222;
-$color-gris: #777;
-$color-borde: #ddd;
-$color-error: #d32f2f;
-$color-error-oscuro: #b71c1c;
-$color-exito: #2e7d32;
+$verde: #2e7d32;
+$verde-claro: #77e38e;
+$verde-suave: #e8f5e9;
+$verde-oscuro: #1b5e20;
+$oscuro: #0f1720;
+$texto: #1f2933;
+$gris: #6b7280;
+$borde: #e2e8e4;
+$fondo: #f3f6f4;
+$error: #d32f2f;
+$error-oscuro: #b71c1c;
 $fuente: 'Poppins', sans-serif;
-$radio: 8px;
+$radio: 12px;
+$sombra: 0 4px 16px rgba(0, 0, 0, 0.08);
+$alto-header: 60px;
+
+// Puntos de corte (ancho de pantalla)
+$tablet: 640px;
+$escritorio: 960px;
 
 // ---------- Base (selectores por etiqueta) ----------
-html,
-body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
+html {
+  scroll-behavior: smooth;
 }
 
 body {
+  margin: 0;
   font-family: $fuente;
-  background: #f8f9fa;
-  color: $color-texto;
+  background: $fondo;
+  color: $texto;
+  line-height: 1.5;
 }
 
 h1,
 h2,
 h3 {
   font-weight: 700;
+  line-height: 1.2;
+}
+
+img {
+  max-width: 100%;
+}
+
+label {
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
 input,
 select {
   display: block;
   width: 100%;
-  margin: 6px 0;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  margin: 4px 0;
+  padding: 10px 12px;
+  border: 1px solid #cbd5d0;
+  border-radius: 8px;
   box-sizing: border-box;
   font-family: $fuente;
+  font-size: 1rem; // 16px evita que el celular haga zoom al tocar el campo
+  background: #fff;
 
   &:focus {
-    outline: 2px solid $color-verde;
-    border-color: $color-verde-oscuro;
+    outline: 2px solid $verde-claro;
+    border-color: $verde;
   }
 
   &[aria-invalid='true'] {
-    border-color: $color-error;
+    border-color: $error;
+    background: #fff8f8;
   }
 }
 
@@ -64,224 +86,284 @@ button {
 
 // ---------- Selector por ID ----------
 #calc-results {
-  border-left: 4px solid $color-verde;
-  text-align: left;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
 }
 
-// ---------- Cabecera ----------
+// ---------- Cabecera y menú ----------
 .site-header {
   position: sticky;
   top: 0;
-  background: $color-oscuro;
-  color: #fff;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 16px;
-  padding: 10px 20px;
   z-index: 999;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  min-height: $alto-header;
+  padding: 0 16px;
+  background: $oscuro;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .site-title {
   margin: 0;
 }
 
-.user-info {
-  color: $color-verde;
-  font-size: 0.9rem;
-  font-weight: bold;
-}
-
 .logo {
-  font-weight: bold;
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   white-space: nowrap;
 }
 
-.main-nav {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 6px 0;
-}
-
 .accent {
-  color: $color-verde;
+  color: $verde-claro;
 }
 
-.main-nav a {
-  margin: 0 10px;
+// Botón hamburguesa: visible solo en celulares
+.menu-toggle {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
   color: #fff;
-  text-decoration: none;
+  font-size: 1.4rem;
+  width: 44px;
+  height: 40px;
 
   &:hover {
-    color: $color-verde;
+    background: rgba(255, 255, 255, 0.1);
   }
 }
 
+// En celulares el menú está oculto y se despliega debajo del logo
+.main-nav {
+  display: none;
+  flex-direction: column;
+  width: 100%;
+  padding-bottom: 12px;
+
+  &.abierto {
+    display: flex;
+  }
+
+  a {
+    color: #fff;
+    text-decoration: none;
+    padding: 12px 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+    &:hover {
+      color: $verde-claro;
+    }
+  }
+}
+
+.user-info {
+  color: $verde-claro;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 8px;
+}
+
 .logout-btn {
+  margin-top: 8px;
+  text-align: center;
   background: rgba(255, 107, 107, 0.9);
-  padding: 6px 12px;
-  border-radius: 15px;
-  transition: background-color 0.3s;
-  color: #fff;
-  text-decoration: none;
-  border: none;
+  border-radius: 20px;
 
   &:hover {
     background: rgb(255, 80, 80);
   }
 }
 
-// ---------- Hero ----------
+// ---------- Hero (portada con imagen) ----------
 .hero {
-  padding: 60px 20px;
-  text-align: center;
-  background: url('../imagenes/fondo-campo-soja.jpeg') no-repeat center center / cover;
-  min-height: 100vh;
-  background-attachment: fixed;
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 100vh;
+  padding: 24px 16px;
   box-sizing: border-box;
+  background: url('../imagenes/fondo-campo-soja.jpeg') no-repeat center / cover;
+  text-align: center;
+}
+
+// Versión más baja del hero para la página principal
+.hero-compacto {
+  min-height: 45vh;
 }
 
 .overlay {
+  width: 100%;
+  max-width: 650px;
+  padding: 24px 20px;
+  border-radius: $radio;
   background: rgba(0, 0, 0, 0.6);
   color: #fff;
-  padding: 40px;
-  text-align: center;
-  border-radius: 12px;
-  max-width: 650px;
-  width: 100%;
+
+  h1,
+  h2 {
+    font-size: 1.6rem;
+    margin-top: 0;
+  }
 }
 
 // ---------- Secciones y tarjetas ----------
 .section {
-  padding: 40px 20px;
-  margin: 0 auto 30px;
-  max-width: 900px;
-  box-sizing: border-box;
-  box-shadow: 0 10px 30px rgb(40, 99, 28);
-  border-radius: 25px;
+  max-width: 1000px;
+  margin: 16px 12px;
+  padding: 20px 16px;
+  border-radius: $radio;
   background: #fff;
+  box-shadow: $sombra;
+  // Deja lugar para el header fijo al saltar a la sección desde el menú
+  scroll-margin-top: $alto-header + 10px;
+
+  > h2 {
+    margin-top: 0;
+    padding-left: 12px;
+    border-left: 5px solid $verde;
+    font-size: 1.4rem;
+  }
 }
 
 .card {
-  background: #fff;
-  padding: 15px;
+  margin: 16px 0;
+  padding: 16px;
+  border: 1px solid $borde;
   border-radius: $radio;
-  margin: 15px 0;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-}
-
-.grid {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  gap: 12px;
-}
-
-.item {
-  background: #fafafa;
-  padding: 10px;
-  border: 1px solid $color-borde;
-  border-radius: 6px;
+  background: #fff;
 }
 
 .muted {
-  color: $color-gris;
+  color: $gris;
 }
 
 .footer {
-  background: $color-verde-oscuro;
-  color: #fff;
   padding: 20px;
+  background: $verde-oscuro;
+  color: #fff;
   text-align: center;
+  font-size: 0.9rem;
 }
 
 // ---------- Formularios ----------
+// Grilla automática: 1 columna en celular y más columnas si hay espacio
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 4px 16px;
+}
+
 .form-group {
-  margin-bottom: 8px;
   text-align: left;
 }
 
+// Fila de botones: ocupa todo el ancho de la grilla
+.form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+
+  .btn {
+    flex: 1 1 140px; // en celular los botones ocupan todo el ancho
+  }
+}
+
 .field-error {
-  color: $color-error;
-  font-size: 0.85rem;
   margin: 2px 0 6px;
+  color: $error;
+  font-size: 0.85rem;
 }
 
-.file-label {
-  display: block;
-  margin-top: 6px;
-  font-size: 0.95rem;
-  color: #333;
-}
-
+// ---------- Login / registro ----------
 .auth-container {
-  max-width: 500px;
-  margin: 20px auto;
+  max-width: 460px;
+  margin: 16px auto 0;
   text-align: left;
 }
 
 .auth-form {
-  display: none;
-  background: rgba(255, 255, 255, 0.95);
-  padding: 30px;
-  border-radius: 12px;
+  padding: 20px;
+  border-radius: $radio;
+  background: rgba(255, 255, 255, 0.97);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  color: #333;
+  color: $texto;
 
-  &.active {
-    display: block;
+  h2 {
+    margin-top: 0;
+  }
+
+  .btn {
+    width: 100%;
+    margin: 8px 0 0;
+  }
+}
+
+.auth-switch {
+  text-align: center;
+  font-size: 0.9rem;
+
+  a {
+    color: $verde;
+    font-weight: 600;
   }
 }
 
 .auth-message {
-  padding: 10px 14px;
-  border-radius: $radio;
+  max-width: 460px;
   margin: 10px auto;
-  max-width: 500px;
+  padding: 10px 14px;
+  border-radius: 8px;
   font-weight: 600;
 
   &.error {
     background: #fdecea;
-    color: $color-error;
+    color: $error;
   }
 
   &.success {
-    background: #e8f5e9;
-    color: $color-exito;
+    background: $verde-suave;
+    color: $verde;
   }
 }
 
 // ---------- Botones ----------
 .btn {
   display: inline-block;
-  padding: 10px 14px;
-  border-radius: 10000px;
-  border: 1px solid #444;
+  padding: 10px 16px;
+  border: 1px solid #cbd5d0;
+  border-radius: 999px;
   background: #fff;
-  color: #000;
-  margin: 2px;
+  color: $texto;
+  font-weight: 600;
+  transition: background-color 0.2s, transform 0.1s;
+
+  &:hover {
+    background: #f1f5f2;
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
 
   &.primary {
-    background: $color-verde-btn;
-    border-color: #000;
-    font-weight: bold;
+    border-color: $verde;
+    background: $verde;
+    color: #fff;
 
     &:hover {
-      background: $color-verde;
+      background: $verde-oscuro;
     }
   }
 
   &.secondary {
+    border-color: #6c757d;
     background: #6c757d;
     color: #fff;
-    border: none;
 
     &:hover {
       background: #5a6268;
@@ -289,51 +371,132 @@ button {
   }
 
   &.danger {
-    background: $color-error;
-    color: #fff;
-    border: none;
+    border-color: $error;
+    background: #fff;
+    color: $error;
 
     &:hover {
-      background: $color-error-oscuro;
+      background: $error;
+      color: #fff;
     }
   }
 }
 
-// ---------- Maquinaria ----------
-.machinery-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 15px;
-  padding: 15px;
+// ---------- Listas (maquinaria y ganadería) ----------
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 
-.machinery-photo {
-  flex-shrink: 0;
+.item {
+  display: flex;
+  flex-direction: column;
+  padding: 14px;
+  border: 1px solid $borde;
+  border-left: 4px solid $verde-claro;
+  border-radius: $radio;
+  background: #fafcfb;
+
+  h3 {
+    margin: 0 0 4px;
+    font-size: 1.05rem;
+  }
+
+  p {
+    margin: 2px 0;
+  }
+}
+
+.item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: auto; // empuja los botones al final de la tarjeta
+  padding-top: 10px;
+
+  .btn {
+    margin: 0;
+    padding: 6px 14px;
+  }
 }
 
 .machinery-image {
-  width: 120px;
-  height: 80px;
+  width: 100%;
+  height: 150px;
+  margin-bottom: 10px;
+  border-radius: 8px;
   object-fit: cover;
-  border-radius: $radio;
-  border: 1px solid $color-borde;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.machinery-info {
-  flex: 1;
+.precio {
+  color: $verde;
+  font-weight: 700;
+}
+
+.badge {
+  display: inline-block;
+  padding: 1px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badge-ok {
+  background: $verde-suave;
+  color: $verde;
+}
+
+.badge-off {
+  background: #eceff1;
+  color: $gris;
+}
+
+// ---------- Resultados de la calculadora ----------
+.resultado {
+  padding: 14px;
+  border-radius: $radio;
+  background: $fondo;
+  text-align: center;
+
+  span {
+    display: block;
+    color: $gris;
+    font-size: 0.85rem;
+  }
+
+  strong {
+    font-size: 1.2rem;
+  }
+
+  &.ganancia {
+    background: $verde-suave;
+    color: $verde;
+  }
+
+  &.perdida {
+    background: #fdecea;
+    color: $error;
+  }
 }
 
 // ---------- Clima ----------
 .map-container {
-  height: 280px;
-  border-radius: $radio;
+  height: 260px;
+  border: 1px solid $borde;
+  border-radius: 8px;
   overflow: hidden;
-  border: 1px solid $color-borde;
 }
 
 .weather-results {
   margin-top: 10px;
+
+  p {
+    margin: 4px 0;
+  }
 }
 
 // ---------- Bolsa / cotizaciones ----------
@@ -345,30 +508,30 @@ button {
 
 .preview-card {
   display: block;
-  background: #fff;
-  border: 1px solid $color-borde;
-  border-radius: 10px;
   overflow: hidden;
+  border: 1px solid $borde;
+  border-radius: $radio;
+  background: #fff;
+  color: $texto;
   text-decoration: none;
-  color: #111;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-  transition: transform 0.1s ease;
+  transition: transform 0.15s, box-shadow 0.15s;
 
   &:hover {
-    transform: translateY(-2px);
+    transform: translateY(-3px);
+    box-shadow: $sombra;
   }
 
   img {
-    width: 100%;
-    height: 140px;
-    object-fit: contain;
     display: block;
+    width: 100%;
+    height: 120px;
+    object-fit: contain;
     background: #f8f9fa;
   }
 }
 
 .preview-info {
-  padding: 10px 12px;
+  padding: 12px 14px;
 
   h3 {
     margin: 0 0 4px;
@@ -377,8 +540,8 @@ button {
 
   p {
     margin: 0;
-    color: #666;
-    font-size: 0.95rem;
+    color: $gris;
+    font-size: 0.9rem;
   }
 }
 
@@ -386,12 +549,10 @@ button {
 .modal-overlay {
   display: none;
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  inset: 0;
   z-index: 1000;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.5);
   animation: fadeIn 0.3s ease;
 
   &.show {
@@ -402,57 +563,54 @@ button {
 }
 
 .modal-content {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  max-width: 500px;
-  width: 90%;
+  width: 100%;
+  max-width: 480px;
   max-height: 90vh;
   overflow-y: auto;
+  border-radius: $radio;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   animation: slideIn 0.3s ease;
 }
 
 .modal-header {
-  padding: 20px 25px 15px;
+  padding: 18px 20px 12px;
   border-bottom: 1px solid #eee;
 
   h3 {
     margin: 0;
-    color: $color-error;
-    font-size: 1.3rem;
+    color: $error;
   }
 }
 
 .modal-body {
-  padding: 20px 25px;
-
-  p {
-    margin: 0 0 15px;
-    color: #333;
-    line-height: 1.5;
-  }
+  padding: 16px 20px;
 }
 
 .confirmation-details {
-  background: #f8f9fa;
-  padding: 15px;
-  border-radius: $radio;
-  margin: 15px 0;
-  border-left: 4px solid $color-verde;
+  padding: 12px 14px;
+  border-left: 4px solid $verde-claro;
+  border-radius: 8px;
+  background: $fondo;
 
   strong {
-    color: #2c5e2e;
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 4px;
+    color: $verde-oscuro;
   }
 }
 
 .modal-footer {
-  padding: 15px 25px 20px;
   display: flex;
-  gap: 10px;
-  justify-content: flex-end;
+  flex-direction: column-reverse; // en celular: botones apilados
+  gap: 8px;
+  padding: 12px 20px 18px;
   border-top: 1px solid #eee;
+
+  .btn {
+    width: 100%;
+    margin: 0;
+  }
 }
 
 @keyframes fadeIn {
@@ -468,70 +626,94 @@ button {
 @keyframes slideIn {
   from {
     opacity: 0;
-    transform: translateY(-20px) scale(0.95);
+    transform: translateY(-20px);
   }
 
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
-// ---------- Responsive ----------
-@media (max-width: 768px) {
-  .site-header {
-    flex-direction: column;
-    gap: 10px;
-    padding: 10px 15px;
-  }
-
-  .main-nav a {
-    margin: 6px;
-    display: inline-block;
-  }
-
+// ==========================================================
+// Tablet en adelante (pantallas de 640px o más)
+// ==========================================================
+@media (min-width: $tablet) {
   .section {
-    max-width: 100%;
-    margin: 10px;
-    border-radius: 16px;
-  }
-
-  .preview-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-@media (max-width: 600px) {
-  .hero {
-    min-height: 40vh;
-    background-attachment: scroll;
+    margin: 24px auto;
+    padding: 28px;
+    width: calc(100% - 48px);
   }
 
   .overlay {
-    padding: 20px;
-    margin: 10px;
+    padding: 36px;
+
+    h1,
+    h2 {
+      font-size: 2rem;
+    }
+  }
+
+  .auth-form {
+    padding: 30px;
+  }
+
+  .map-container {
+    height: 340px;
+  }
+
+  .modal-footer {
+    flex-direction: row;
+    justify-content: flex-end;
+
+    .btn {
+      width: auto;
+    }
+  }
+
+  .form-actions .btn {
+    flex: 0 0 auto; // en pantallas grandes los botones toman su tamaño natural
   }
 }
 
-@media (max-width: 480px) {
-  .modal-content {
-    width: 95%;
-    margin: 10px;
+// ==========================================================
+// Escritorio (pantallas de 960px o más): menú horizontal
+// ==========================================================
+@media (min-width: $escritorio) {
+  .site-header {
+    flex-wrap: nowrap;
+    padding: 0 24px;
   }
 
-  .modal-header,
-  .modal-body,
-  .modal-footer {
-    padding-left: 15px;
-    padding-right: 15px;
+  .menu-toggle {
+    display: none;
   }
 
-  .modal-footer {
-    flex-direction: column;
+  .main-nav {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: auto;
+    padding: 0;
 
-    .btn {
-      width: 100%;
-      margin: 0;
+    a {
+      padding: 8px 10px;
+      border-bottom: none;
     }
+  }
+
+  .user-info {
+    order: 1; // el email va al final, al lado de "Cerrar sesión"
+    margin-left: 8px;
+  }
+
+  .logout-btn {
+    order: 2;
+    margin: 0 0 0 8px;
+    padding: 6px 14px;
+  }
+
+  .hero {
+    background-attachment: fixed; // efecto parallax solo en escritorio
   }
 }
