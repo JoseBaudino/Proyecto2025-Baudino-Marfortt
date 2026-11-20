@@ -11,6 +11,7 @@
 - [Enlaces](#enlaces)
 - [Instalación y Uso](#instalación-y-uso)
 - [Tests](#tests)
+- [Actualización automática de precios](#actualización-automática-de-precios)
 - [Publicación en GitHub Pages](#publicación-en-github-pages)
 - [Requisitos del Primer Parcial](#requisitos-del-primer-parcial)
 - [Requisitos del Segundo Parcial](#requisitos-del-segundo-parcial)
@@ -26,7 +27,7 @@
 - **Control de Ganadería**: Inventario de animales por tipo y raza con contadores +1 / -1
 - **Calculadora de Costos**: Costo por hectárea, costo total, ingreso esperado y utilidad
 - **Clima**: Consulta en tiempo real a la API de Open-Meteo eligiendo un punto en el mapa. Se puede guardar un punto como **"mi campo"** (queda en localStorage y el mapa arranca ahí)
-- **Bolsa de Cereales**: Precios de pizarra reales (en pesos y dólares, con su fecha) de Rosario y Córdoba, leídos desde un JSON local, con enlace a cada bolsa
+- **Bolsa de Cereales**: Precios de pizarra reales (en pesos y dólares, con su fecha) de Rosario y Córdoba, que se **actualizan solos todos los días hábiles** con GitHub Actions
 - **Almacenamiento Local**: Persistencia de sesión, maquinaria, ganadería y tema elegido entre visitas
 - **Panel de resumen**: Máquinas activas, total de animales y valor de la maquinaria en la portada
 - **Buscador de maquinaria**: Filtro en tiempo real por nombre/tipo y por estado; cada máquina tiene un botón para activarla o desactivarla
@@ -78,9 +79,9 @@
    - Mapa interactivo: al hacer clic se muestran temperatura, viento, humedad y probabilidad de lluvia
    - Botón "Guardar punto como mi campo": el punto queda guardado y se muestra con un círculo verde
 6. **Bolsa de Cereales**
-   - Tarjetas de la Bolsa de Rosario y la Bolsa de Córdoba generadas desde `src/data/cotizaciones.json`
-   - Precios de pizarra reales: Rosario del 19/11/2026 ([CAC - BCR](https://www.cac.bcr.com.ar/es/precios-de-pizarra)) y Córdoba del 20/11/2026 ([BCCBA](https://www.bccba.org.ar/))
-   - Las bolsas no ofrecen una API pública que se pueda consultar desde el navegador, por eso los precios se actualizan editando el JSON (valores, `fecha` y si es precio estimado)
+   - Tarjetas de la Bolsa de Rosario y la Bolsa de Córdoba, armadas con `fetch` a `public/data/cotizaciones.json`
+   - Precios de pizarra reales de [CAC - BCR](https://www.cac.bcr.com.ar/es/precios-de-pizarra) (Rosario) y [BCCBA](https://www.bccba.org.ar/) (Córdoba), con la fecha de cada pizarra
+   - Se actualizan automáticamente (ver [Actualización automática de precios](#actualización-automática-de-precios))
 
 ### Funcionalidades Técnicas
 - **Validaciones en tiempo real** (`onChange`) con mensajes accesibles (`role="alert"`, `aria-invalid`)
@@ -94,16 +95,18 @@
 Proyecto2025-Baudino-Marfortt/
 ├── Sketch/            # Bocetos en papel (PC y Móvil)
 ├── Mockup/            # Mockups desktop y mobile
+├── .github/workflows/ # Tarea diaria que actualiza las cotizaciones
 ├── docs/              # Build de producción publicado en GitHub Pages
 └── frontend/          # Código fuente (React + Vite)
     ├── index.html
+    ├── public/data/   # cotizaciones.json (lo actualiza GitHub Actions)
+    ├── scripts/       # actualizar-cotizaciones.js (lee las pizarras de las bolsas)
     └── src/
-        ├── api/          # Servicios: clima (fetch a Open-Meteo) y cotizaciones (servicio simulado)
+        ├── api/          # Servicios: clima (fetch a Open-Meteo) y cotizaciones (fetch al JSON de precios)
         ├── assets/
         │   └── imagenes/ # Imágenes del sitio
         ├── components/   # Componentes reutilizables (Button, Card, Input, ConfirmModal, secciones)
         ├── contexts/     # Contexto y proveedor de sesión
-        ├── data/         # JSON local (cotizaciones)
         ├── hooks/        # Hooks propios: useFormulario, useLocalStorage y useTema
         ├── layouts/      # MainLayout (header + Outlet + footer)
         ├── pages/        # HomePage (login/registro) e IndexPage (principal)
@@ -156,6 +159,24 @@ Los tests están en `frontend/src/__tests__/` (24 tests: componentes genéricos,
 cd frontend
 npm test
 ```
+
+## Actualización automática de precios
+
+Las bolsas no permiten leer sus páginas desde el navegador (bloqueo CORS), por eso los precios se leen "del lado del servidor":
+
+1. De lunes a viernes a las 18:30 (hora argentina), **GitHub Actions** ejecuta `.github/workflows/actualizar-cotizaciones.yml`.
+2. La tarea corre `frontend/scripts/actualizar-cotizaciones.js`, que descarga las pizarras de Rosario y Córdoba y guarda los precios en `frontend/public/data/cotizaciones.json` y `docs/data/cotizaciones.json`.
+3. Si los precios cambiaron, hace un commit automático y vuelve a publicar el sitio.
+4. La app pide el JSON con `fetch` cada vez que se abre, así que siempre muestra la última pizarra.
+
+Si una bolsa no se puede leer, se mantienen sus precios anteriores. También se puede actualizar a mano:
+
+```bash
+cd frontend
+npm run cotizaciones
+```
+
+o desde GitHub: pestaña **Actions** → **Actualizar cotizaciones** → **Run workflow**.
 
 ## Publicación en GitHub Pages
 

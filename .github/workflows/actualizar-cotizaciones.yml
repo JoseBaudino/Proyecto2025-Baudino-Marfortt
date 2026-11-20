@@ -1,0 +1,51 @@
+# Actualiza todos los días hábiles los precios de pizarra de la Bolsa de Cereales.
+# Lee las páginas oficiales de Rosario (CAC-BCR) y Córdoba (BCCBA), guarda el JSON
+# en frontend/public/data y docs/data, y si cambió hace un commit y publica el sitio.
+name: Actualizar cotizaciones
+
+on:
+  schedule:
+    # De lunes a viernes a las 21:30 UTC (18:30 hora de Argentina), cuando ya se publicó la pizarra
+    - cron: '30 21 * * 1-5'
+  # Permite ejecutarla a mano desde la pestaña "Actions" de GitHub
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el repositorio
+        uses: actions/checkout@v4
+
+      - name: Instalar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Leer las pizarras y actualizar el JSON
+        run: node frontend/scripts/actualizar-cotizaciones.js
+
+      - name: Guardar los cambios (solo si los precios cambiaron)
+        id: commit
+        run: |
+          if git diff --quiet; then
+            echo "Los precios no cambiaron."
+            echo "cambios=no" >> "$GITHUB_OUTPUT"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add frontend/public/data/cotizaciones.json docs/data/cotizaciones.json
+            git commit -m "Actualizacion automatica de cotizaciones"
+            git push
+            echo "cambios=si" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Volver a publicar el sitio en GitHub Pages
+        if: steps.commit.outputs.cambios == 'si'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST "repos/${{ github.repository }}/pages/builds"

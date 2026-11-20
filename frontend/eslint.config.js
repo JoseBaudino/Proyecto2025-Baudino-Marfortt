@@ -27,7 +27,7 @@ export default defineConfig([
     },
   },
   {
-    files: ['src/__tests__/**/*.{js,jsx}', 'jest.setup.js'],
+    files: ['src/__tests__/**/*.{js,jsx}', 'jest.setup.js', 'scripts/**/*.js'],
     languageOptions: {
       globals: { ...globals.jest, ...globals.node },
     },

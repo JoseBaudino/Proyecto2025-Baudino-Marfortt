@@ -3,8 +3,11 @@ import userEvent from '@testing-library/user-event';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
 import QuotesList from '@/components/QuotesList';
-import cotizaciones from '@/data/cotizaciones.json';
+import fs from 'node:fs';
+import path from 'node:path';
 import * as api from '@/api/cotizaciones';
+
+const cotizaciones = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'public', 'data', 'cotizaciones.json'), 'utf8'));
 
 describe('Componentes genéricos', () => {
   test('Button renderiza el texto esperado y ejecuta onClick', async () => {
@@ -36,9 +39,10 @@ describe('Componentes genéricos', () => {
     expect(screen.getAllByRole('option')).toHaveLength(3);
   });
 
-  test('QuotesList pide los datos al servicio y renderiza una tarjeta por cada bolsa', async () => {
+  test('QuotesList pide los datos con fetch y renderiza una tarjeta por cada bolsa', async () => {
     render(<QuotesList />);
     expect(screen.getByText('Cargando cotizaciones…')).toBeInTheDocument();
+    expect(global.fetch).toHaveBeenCalledWith('data/cotizaciones.json', { cache: 'no-store' });
     for (const bolsa of cotizaciones) {
       expect(await screen.findByRole('heading', { name: bolsa.nombre })).toBeInTheDocument();
       expect(screen.getByAltText(bolsa.alt)).toBeInTheDocument();
@@ -48,9 +52,10 @@ describe('Componentes genéricos', () => {
   test('QuotesList muestra los precios en pesos y dólares en una tabla con caption', async () => {
     render(<QuotesList />);
     const [tablaRosario] = await screen.findAllByRole('table', { name: 'Precios por tonelada' });
+    const soja = cotizaciones[0].precios.find((p) => p.producto === 'Soja');
     const filaSoja = within(tablaRosario).getByRole('row', { name: /Soja/ });
-    expect(filaSoja).toHaveTextContent('$ 550.000');
-    expect(filaSoja).toHaveTextContent('US$ 353,47');
+    expect(filaSoja).toHaveTextContent(`$ ${soja.pesos.toLocaleString('es-AR')}`);
+    expect(filaSoja).toHaveTextContent(`US$ ${soja.dolares.toLocaleString('es-AR')}`);
   });
 
   test('QuotesList muestra un mensaje cuando el servicio no devuelve datos', async () => {
