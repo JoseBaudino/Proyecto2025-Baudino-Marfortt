@@ -6,40 +6,40 @@
     "logo": "rosario",
     "alt": "Logo de la Cámara Arbitral de Cereales de Rosario",
     "url": "https://www.cac.bcr.com.ar/es/precios-de-pizarra",
-    "fecha": "19/11/2026",
+    "fecha": "20/11/2026",
     "precios": [
       {
         "producto": "Trigo",
-        "pesos": 294084,
-        "dolares": 189,
+        "pesos": 298490,
+        "dolares": 190,
         "unidad": "t",
         "estimado": false
       },
       {
         "producto": "Maíz",
-        "pesos": 272000,
-        "dolares": 174.81,
+        "pesos": 270212,
+        "dolares": 172,
         "unidad": "t",
         "estimado": false
       },
       {
         "producto": "Girasol",
-        "pesos": 746880,
+        "pesos": 754080,
         "dolares": 480,
         "unidad": "t",
         "estimado": true
       },
       {
         "producto": "Soja",
-        "pesos": 550000,
-        "dolares": 353.47,
+        "pesos": 560000,
+        "dolares": 356.46,
         "unidad": "t",
         "estimado": false
       },
       {
         "producto": "Sorgo",
-        "pesos": 287860,
-        "dolares": 185,
+        "pesos": 282780,
+        "dolares": 180,
         "unidad": "t",
         "estimado": true
       }
@@ -52,18 +52,11 @@
     "logo": "cordoba",
     "alt": "Logo de la Bolsa de Cereales de Córdoba",
     "url": "https://www.bccba.org.ar/",
-    "fecha": "20/11/2026",
+    "fecha": "24/11/2026",
     "precios": [
       {
-        "producto": "Trigo duro",
-        "pesos": 267075,
-        "dolares": null,
-        "unidad": "t",
-        "estimado": true
-      },
-      {
         "producto": "Maní Industria",
-        "pesos": 720607.5,
+        "pesos": 752750,
         "dolares": null,
         "unidad": "t",
         "estimado": true
